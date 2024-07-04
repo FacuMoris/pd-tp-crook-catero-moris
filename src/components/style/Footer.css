@@ -1,0 +1,26 @@
+#row-footer{
+    background-color: rgb(51, 50, 50);
+    align-items: center;
+    height: 200px;
+    position: absolute;
+    bottom:0;
+    width: 100%;
+    color: white;
+}
+.ul-footer{
+    color: white;
+    list-style: none;
+    padding:0;
+}
+.ul-footer li a{
+    text-decoration: none;
+    color: white;
+}
+
+.logo-footer{
+    width: 200px;
+}
+.redes-logo{
+    height: 50px;
+    width: 50px;
+}
