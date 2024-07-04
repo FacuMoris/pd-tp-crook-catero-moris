@@ -1,4 +1,5 @@
 import { EquiposLista } from "../components/EquiposLista"
+import { Footer } from "../components/Footer";
 import { TablaEquipos } from "../components/TablaEquipos";
 
 export const Match = () => {
@@ -7,6 +8,10 @@ export const Match = () => {
     
 
     return (
+        <>
+        <h2 className="text-center pt-2">Buscar equipos</h2>
         <TablaEquipos equipos={equipos}/>
+        <Footer/>
+        </>
     );
 };
