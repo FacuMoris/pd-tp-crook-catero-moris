@@ -1,5 +1,6 @@
 import React from 'react';
 import { Footer } from '../components/Footer';
+import { RegistroEquipo } from '../components/RegistroEquipo';
 
 export const Equipo = () => {
 
@@ -8,7 +9,8 @@ export const Equipo = () => {
     return (
         <>
             <div>
-                <h1>Buscar equipo</h1>
+                <h1 className='text-center'>Formar equipo</h1>
+                <RegistroEquipo/>
 
             </div>
             <Footer />
