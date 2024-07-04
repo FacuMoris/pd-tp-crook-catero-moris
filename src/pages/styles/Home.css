@@ -1,10 +1,8 @@
 #title-row{
     max-height: 70px;    
 }
-#home-banner{
-    display: block;
-}
 
-.home-row{
-    height: 700px;
+
+.home-banner{
+    background-size: cover;
 }

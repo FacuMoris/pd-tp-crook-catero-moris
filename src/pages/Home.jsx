@@ -10,12 +10,14 @@ export const Home = () => {
             <div className="col-12 mt-4" id="title-row">
                 <h1 className="text-center mb-5">Home</h1>
             </div>
-            <div className="row home-row">
-                <div className="col-4">
+            <div className="row home-row justify-content-center align-items-center">
+                <div className="col-6">
                     <HomeText />
                 </div>
-                <div className="col-8 d-flex">
-                    <img id='home-banner' src="/img/bg/banner-valo.jpg" alt="banner-valorant" />
+                <div className="col-6">
+                    <div className="row justify-content-center">
+                        <img id='home-banner' src="/img/bg/banner-valo.jpg" alt="banner-valorant" className="d-flex" />
+                    </div>
                 </div>
             </div>
             <Footer />
