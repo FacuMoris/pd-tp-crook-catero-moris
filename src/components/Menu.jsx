@@ -41,12 +41,12 @@ export const Menu = () => {
                                         </Link>
                                     </li>
                                     <li className='nav-item'>
-                                        <Link className='nav-link' to='/match'>
+                                        <Link className='nav-link' to='/busca/equipo'>
                                             Match
                                         </Link>
                                     </li>
                                     <li className='nav-item'>
-                                        <Link className='nav-link' to='/equipo'>
+                                        <Link className='nav-link' to='/forma/equipo'>
                                             Formar equipo
                                         </Link>
                                     </li>

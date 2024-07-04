@@ -18,7 +18,7 @@ export const EquiposLista = {
             "id": 2,
             "nombre": "Astral Guardians",
             "cantidad_jugadores": 3,
-            "busca_player": true,
+            "busca_player": false,
             "jugadores": [
                 { "id": 5, "alias": "EternalGamer" },
                 { "id": 6, "alias": "FireBender" },
@@ -55,7 +55,7 @@ export const EquiposLista = {
             "id": 5,
             "nombre": "Galactic Reavers",
             "cantidad_jugadores": 4,
-            "busca_player": false,
+            "busca_player": true,
             "jugadores": [
                 { "id": 15, "alias": "NeonStriker" },
                 { "id": 16, "alias": "DarkStar" },

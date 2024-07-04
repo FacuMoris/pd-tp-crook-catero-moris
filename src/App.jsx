@@ -45,8 +45,8 @@ export const App = () => {
             <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}></Route>
             <Route path='/perfil' element={<ProtectedRoute><Perfil /></ProtectedRoute>}></Route>
             <Route path='/editperfil' element={<ProtectedRoute><EditPerfil /></ProtectedRoute>}></Route>
-            <Route path='/match' element={<ProtectedRoute><Match /></ProtectedRoute>}></Route>
-            <Route path='/equipo' element={<ProtectedRoute><Equipo /></ProtectedRoute>}></Route>
+            <Route path='/busca/equipo' element={<ProtectedRoute><Match /></ProtectedRoute>}></Route>
+            <Route path='/forma/equipo' element={<ProtectedRoute><Equipo /></ProtectedRoute>}></Route>
             <Route path='/blog' element={<ProtectedRoute><Blog /></ProtectedRoute>}></Route>
             <Route path='/historial' element={<ProtectedRoute><Historial /></ProtectedRoute>}></Route>
           </Routes>
