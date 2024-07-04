@@ -1,5 +1,12 @@
+import { EquiposLista } from "../components/EquiposLista"
+import { TablaEquipos } from "../components/TablaEquipos";
+
 export const Match = () => {
-    return(
-        <h1 className="text-start ps-5">MATCH</h1>
+
+    const equipos = EquiposLista.results;
+    
+
+    return (
+        <TablaEquipos equipos={equipos}/>
     );
-}
+};

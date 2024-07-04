@@ -7,7 +7,7 @@ export const Footer = () => {
                 <div className="row align-items-center">
                     <div className="col-4">
                        
-                       <img src="./img/logo/app.png" alt="logo-app" class='logo-footer'/>
+                       <img src="./img/logo/app.png" alt="logo-app" className='logo-footer'/>
 
                     </div>
                    

@@ -1,5 +1,13 @@
+import React from 'react';
+
 export const Equipo = () => {
-    return(
-        <h1>Equipo</h1>
-    )
+
+    
+
+    return (
+        <div>
+            <h1>Buscar equipo</h1>
+           
+        </div>
+    );
 };

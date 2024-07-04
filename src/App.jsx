@@ -15,6 +15,7 @@ import { Registro } from './pages/Registro'
 import { Match } from './pages/Match'
 import { Equipo } from './pages/Equipo'
 import { Blog } from './pages/Blog'
+import { Historial } from './pages/Historial'
 
 // Componentes
 
@@ -47,6 +48,7 @@ export const App = () => {
             <Route path='/match' element={<ProtectedRoute><Match /></ProtectedRoute>}></Route>
             <Route path='/equipo' element={<ProtectedRoute><Equipo /></ProtectedRoute>}></Route>
             <Route path='/blog' element={<ProtectedRoute><Blog /></ProtectedRoute>}></Route>
+            <Route path='/historial' element={<ProtectedRoute><Historial /></ProtectedRoute>}></Route>
           </Routes>
         </BrowserRouter>
       </AuthProvider>
