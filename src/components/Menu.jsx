@@ -51,19 +51,19 @@ export const Menu = () => {
                                         </Link>
                                     </li>
                                     <li className='nav-item pe-3'>
-                                        <Link className='nav-link' to='/blog'>
+                                        <Link className='nav-link disabled' to='/blog'>
                                             BLOG
                                         </Link>
                                     </li>
                                     <span className="fs-3">|</span>
                                     <li className='nav-item dropdown ps-3'>
-                                        <a className="nav-link dropdown-togle d-flex justify-content-center" href="#" role='button' data-bs-toggle='dropdown' aria-expanded='true'>
+                                        <a className="nav-link dropdown-togle d-flex justify-content-center " href="#" role='button' data-bs-toggle='dropdown' aria-expanded='true'>
                                             Perfil
                                         </a>
                                         <ul className="dropdown-menu w-25 mx-auto text-center">
-                                            <li><Link className="dropdown-item" to='/perfil'>Ver perfil</Link>
+                                            <li><Link className="dropdown-item disabled" to='/perfil'>Ver perfil</Link>
                                             </li>
-                                            <li><Link className="dropdown-item" to='/historial'>Historial</Link></li>
+                                            <li><Link className="dropdown-item disabled" to='/historial'>Historial</Link></li>
                                         </ul>
                                     </li>
                                     <li className="nav-item dropdown">
@@ -71,8 +71,8 @@ export const Menu = () => {
                                             Opciones
                                         </a>
 
-                                        <ul className="dropdown-menu w-25 mx-auto text-center">
-                                            <li><Link className="dropdown-item" to='/editperfil'>Editar perfil</Link>
+                                        <ul className="dropdown-menu w-25 mx-auto text-center ">
+                                            <li><Link className="dropdown-item disabled" to='/editperfil'>Editar perfil</Link>
                                             </li>
                                             <li><button type='button' className="dropdown-item" onClick={handlerLogout}>CERRAR SESIÓN</button></li>
                                         </ul>
