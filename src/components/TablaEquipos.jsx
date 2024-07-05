@@ -1,20 +1,32 @@
 import './style/TablaEquipos.css'
 import { Card } from './Card';
 import { useNavigate } from 'react-router-dom'
+import { SolicitoUnirme } from './SolicitoUnirme';
+import { useState } from 'react';
 
 export const TablaEquipos = (props) => {
     
     const equipos = props.equipos;
     var hayEquipos = false;
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [mostrarSolicitud, setMostrarSolicitud] = useState(false);
+    const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+
+    const handleMatchEquipo = (usuario) => {
+        setUsuarioSeleccionado(usuario);
+        setMostrarSolicitud(true);
+    };
+
+    const miUser = {
+        alias: 'facumoris'
+    };
+
     
-
-    console.log(equipos);
-
-
-
     return (
         <div className="row justify-content-center mx-1 px-1 pt-3">
+               {mostrarSolicitud && (
+                <SolicitoUnirme usuario={usuarioSeleccionado} />
+            )}
             <table className="table table-striped text-center">
                 <thead>
                     <tr>
@@ -42,7 +54,7 @@ export const TablaEquipos = (props) => {
                                         </div>
                                     </td>
                                     <td>Duelista</td>
-                                    <td>UNIRME</td>
+                                    <td><button type='button' className='btn btn-primary' onClick={() => handleMatchEquipo(miUser)}>Unirme</button></td>
                                 </tr>
                             );
                         }
