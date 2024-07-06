@@ -39,17 +39,17 @@ export const RegistroEquipo = (props) => {
     return (
         <>
             <div className="row justify-content-center text-center mt-4">
-                <div className="col-6 border pt-3">
+                <div className="col-6 border pt-3 pt-5 pb-5">
 
                     <form className="fs-5">
                         <div className="row mb-5 pb-5">
                             <div className="col-6 ps-5">
-                                <h2 className="pt-5">Registrar equipo</h2>
+                                <h2 className="pt-5">REGISTRAR EQUIPO</h2>
                                 <div className='row justify-content-center mb-3'>
-                                    <label htmlFor='input-equipo' className='form-label'>Nombre del equipo </label>
+                                    <label htmlFor='input-equipo' className='form-label'>NOMBRE</label>
                                     <input type='text' className='form-control w-50' id='input-equipo' aria-describedby='team-name' value={nombreEquipo} onChange={(e) => setNombreEquipo(e.target.value)} />
                                 </div>
-                                <button type='button' className='btn btn-primary ms-2 px-4 fs-5' onClick={handleConfirmarEquipo} >Confirmar </button>
+                                <button type='button' className='btn btn-primary ms-2 px-4 fs-5 mt-3' onClick={handleConfirmarEquipo} >Confirmar </button>
                             </div>
                             <div className="col-6 ps-5 align-self-center">
                                 <h2 className="pt-5">Invitar amigos</h2>

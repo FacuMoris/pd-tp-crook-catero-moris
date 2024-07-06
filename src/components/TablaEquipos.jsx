@@ -27,6 +27,8 @@ export const TablaEquipos = (props) => {
                {mostrarSolicitud && (
                 <SolicitoUnirme usuario={usuarioSeleccionado} />
             )}
+            <div className="col-8">
+
             <table className="table table-striped text-center">
                 <thead>
                     <tr>
@@ -59,10 +61,11 @@ export const TablaEquipos = (props) => {
                             );
                         }
                     })
-                    }
+                }
 
                 </tbody>
             </table>
+            </div>
             {!hayEquipos && (
                 <>
                     <div className="row text-center justify-content-center">

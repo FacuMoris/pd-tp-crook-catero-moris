@@ -3,7 +3,7 @@ import { Footer } from "../components/Footer";
 export const Blog = () => {
     return(
         <>
-        <h1>Blog</h1>
+        <h2>Blog</h2>
         <Footer/>
         </>
     );

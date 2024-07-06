@@ -32,7 +32,7 @@ export const Registro = () => {
         return (
             <>
                 <BannerReyna />
-                <h2 className="text-center mb-5 mt-5">Registrarse</h2>
+                <h2 className="text-center mb-5 mt-5">REGISTRO</h2>
                 <form className="fs-5">
                     <div className="row justify-content-center">
                         <div className="col-4">
@@ -109,9 +109,9 @@ export const Registro = () => {
                         </div>
                     </div>
                     <div className="row justify-content-center text-center">
-                        <div className="col-4 mt-4">
+                        <div className="col-2 mt-4">
 
-                            <button type='button' onClick={handleRegistro} className='btn btn-primary fs-5 w-100'>
+                            <button type='button' onClick={handleRegistro} className='btn btn-primary fs-5 w-100 mt-4'>
                                 Confirmar
                             </button>
                         </div>

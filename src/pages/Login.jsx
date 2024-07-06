@@ -17,10 +17,10 @@ export const Login = () => {
     return (
         <>
             <BannerReyna/>
-            <h2 className="text-center mb-5 mt-5">Iniciar sesión</h2>
+            <h2 className="text-center mb-5 mt-5">INICIAR SESIÓN</h2>
             <form className="fs-5">
                 <div className="row justify-content-center">
-                    <div className="col-6">
+                    <div className="col-4">
 
                         <div className='mb-3'>
                             <label htmlFor='exampleInputEmail1' className='form-label'>Email </label>
@@ -30,7 +30,7 @@ export const Login = () => {
                             <label htmlFor='exampleInputPassword1' className='form-label'> Contraseña</label>
                             <input type='password' className='form-control' id='exampleInputPassword1' />
                         </div>
-                        <button type='button' className='btn btn-primary px-4 fs-5' onClick={handlerLogin}>
+                        <button type='button' className='btn btn-primary px-4 fs-5 mt-4' onClick={handlerLogin}>
                             Confirmar
                         </button>
                     </div>

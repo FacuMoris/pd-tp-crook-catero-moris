@@ -3,7 +3,7 @@ import { Footer } from "../components/Footer";
 export const Historial = () => {
     return(
         <>
-        <h1>Historial</h1>
+        <h2>Historial</h2>
         <Footer/>
         </>
     )

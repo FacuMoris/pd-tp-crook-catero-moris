@@ -9,9 +9,9 @@ export const Equipo = () => {
     return (
         <>
             <div>
-                <h1 className='text-center'>Formar equipo</h1>
+                <h2 className='text-center pt-5'>FORMÁ TU EQUIPO</h2>
                 <RegistroEquipo/>
-
+               
             </div>
             <Footer />
         </>

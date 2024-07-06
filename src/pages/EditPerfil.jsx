@@ -5,7 +5,7 @@ export const EditPerfil = () => {
 
     return(
         <>
-        <h1>Editar perfil</h1>
+        <h2>Editar perfil</h2>
         <Footer/>
         </>
     )

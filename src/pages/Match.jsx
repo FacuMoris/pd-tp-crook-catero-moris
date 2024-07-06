@@ -9,7 +9,7 @@ export const Match = () => {
 
     return (
         <>
-        <h2 className="text-center pt-2">Buscar equipos</h2>
+        <h2 className="text-center pt-5 mb-5">BUSCAR EQUIPO</h2>
         <TablaEquipos equipos={equipos}/>
         <Footer/>
         </>

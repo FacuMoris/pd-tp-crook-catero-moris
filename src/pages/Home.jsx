@@ -8,7 +8,7 @@ export const Home = () => {
     return (
         <>
             <div className="col-12 mt-4" id="title-row">
-                <h1 className="text-center mb-5">Home</h1>
+                <h2 className="text-center mb-5 mt-5">HOME</h2>
             </div>
             <div className="row home-row justify-content-center align-items-center">
                 <div className="col-6">

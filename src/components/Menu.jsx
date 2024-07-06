@@ -15,7 +15,7 @@ export const Menu = () => {
 
     return (
         <div className="row mb-4 mt-2" id='row-nav'>
-            <nav className='navbar navbar-expand-lg bg-body-tertiary fs-6' id='nav-menu'>
+            <nav className='navbar navbar-expand-lg bg-body-secondary fs-6' id='nav-menu'>
                 <div className='container'>
                     <a className='navbar-brand' href='#'>
                         <img src="/img/logo/app.png" alt="logo-app" id='nav-logo' />

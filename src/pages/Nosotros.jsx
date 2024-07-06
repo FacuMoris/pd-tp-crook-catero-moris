@@ -6,12 +6,12 @@ export const Nosotros = () => {
  return(
     <>
     <BannerReyna/>
-    <h1 className="text-center mb-4">Nosotros</h1>
+    <h2 className="text-center pt-4 pb-3 mb-4">NOSOTROS</h2>
     <div className="row justify-content-center align-items-center text-center">
     <Card titulo='¿Quiénes somos?' descripcion='Somos estudiantes de la carrera Analista de Sistemas en la Escuela Da Vinci. Este proyecto forma parte de la cursada de Plataformas de Desarrollo, a cargo del profesor Fernando Gaitán'
-    col='8'/>
+    col='6'/>
     <Card titulo='Objetivo del proyecto' descripcion='Facilitarle una herramienta al usuario con la que pueda encontrar otros jugadores para formar equipos, agregar amigos, ingresar a nuevos equipos y acceder a un blog con novedades sobre el juego y la aplicación.'
-    col='8'/>
+    col='6'/>
     
     </div>
     <div className="row justify-content-center text-center mt-5">

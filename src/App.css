@@ -2,6 +2,8 @@
 
 body{
     font-family: 'Roboto', sans-serif;
+    background-color: rgb(15, 14, 14);
+    color:white;
 }
 #app-row{
     height: 100%;
