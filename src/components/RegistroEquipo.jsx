@@ -52,7 +52,7 @@ export const RegistroEquipo = (props) => {
                                 <button type='button' className='btn btn-primary ms-2 px-4 fs-5 mt-3' onClick={handleConfirmarEquipo} >Confirmar </button>
                             </div>
                             <div className="col-6 ps-5 align-self-center">
-                                <h2 className="pt-5">Invitar amigos</h2>
+                                <h2 className="pt-5">INVITAR AMIGOS</h2>
                                 <div className='row justify-content-center mb-3 '>
                                     <div className="col-5">
                                         <button type='button' onClick={handleBuscarClick} disabled={!equipoConfirmado} className='btn btn-primary ms-2 px-4 mt-3 fs-5'>Buscar</button>
