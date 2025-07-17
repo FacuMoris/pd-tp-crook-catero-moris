@@ -1,19 +1,26 @@
-const express = require("express");
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
-const equipoController = require("../controllers/equipoController");
+import {
+  index,
+  store,
+  show,
+  update,
+  activeTeams,
+  history,
+} from "../controllers/equipoController";
 
-router.get("/equipos", equipoController.index);
+router.get("/equipos", index);
 
-router.post("/equipos", equipoController.store);
+router.post("/equipos", store);
 
-router.get("/equipos/:ID", equipoController.show);
+router.get("/equipos/:ID", show);
 
-router.put("/equipos/:ID", equipoController.update);
+router.put("/equipos/:ID", update);
 
-router.get("/equipos-activos", equipoController.activeTeams);
+router.get("/equipos-activos", activeTeams);
 
-router.get("/equipos/historial/:ID", equipoController.history);
+router.get("/equipos/historial/:ID", history);
 
-module.exports = router;
+export default router;

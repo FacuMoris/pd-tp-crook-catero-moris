@@ -1,0 +1,3 @@
+# Recuperar todo 
+
+GET http://localhost:8888/equipos

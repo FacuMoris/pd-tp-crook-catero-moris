@@ -1,4 +1,4 @@
-const connection = require("../../db");
+const connection = require("../../db").default;
 const { formatToday } = require("../helpers/dateHelper");
 
 exports.all = async () => {
@@ -12,7 +12,7 @@ exports.all = async () => {
 
     console.log("RANGOS-> " + rangos);
     const results = formatRango(rangos);
-    //console.log("RANGOSFORMAT-> " + results);
+    // console.log("RANGOSFORMAT-> " + results);
 
     return results;
   } catch (error) {

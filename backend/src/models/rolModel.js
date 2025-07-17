@@ -1,7 +1,7 @@
-const connection = require("../../db");
-const { formatToday } = require("../helpers/dateHelper");
+import { query as _query } from "../../db";
+import { formatToday } from "../helpers/dateHelper";
 
-exports.find = async (ID) => {
+export async function find(ID) {
   const query = `
         SELECT id, rango, nro_div
         FROM rango
@@ -9,10 +9,12 @@ exports.find = async (ID) => {
         `;
 
   try {
-    [rango] = await connection.query(query, [ID]);
+    [rango] = await _query(query, [ID]);
     result = rango.length == 1 ? formatRango(rango) : null;
     return result;
   } catch (error) {
     throw error;
   }
-};
+}
+
+export async function create() {}

@@ -1,4 +1,4 @@
-const connection = require("../../db");
+const connection = require("../../db").default;
 const { formatToday } = require("../helpers/dateHelper");
 const jugadorModel = require("./jugadorModel");
 

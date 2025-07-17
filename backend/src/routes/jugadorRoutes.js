@@ -1,12 +1,12 @@
-const express = require("express");
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
-const jugadorController = require("../controllers/jugadorController");
+const jugadorController = require('../controllers/jugadorController')
 
-router.get("/jugadores", jugadorController.index);
+router.get('/jugadores', jugadorController.index)
 
-router.get("/jugadores/:ID", jugadorController.show);
+router.get('/jugadores/:ID', jugadorController.show)
 
-router.put("/jugadores/:ID", jugadorController.update);
+router.put('/jugadores/:ID', jugadorController.update)
 
-module.exports = router;
+module.exports = router

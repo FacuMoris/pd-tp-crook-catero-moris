@@ -1,0 +1,56 @@
+Dependencias npm install:
+-E -> exacta
+-D -> de desarrollo
+
+
+### npm install zod -E => vaidaciones de tipos datos POST
+
+    /movies.js
+
+    const z = require('zod')
+
+    const movieSchema = z.object({
+        title: z.string({
+            invalid_type_error: 'El titulo debe ser un string',
+            required_error: 'El titulo es requerido'
+        }),
+        year: z.number().int().positive().max(2025),
+        duration: z.number().int().positive(),
+        rate: z.number().min(0).maz(10),
+        poster:  z.string().url({
+            message: 'Poster debe ser una url'
+        }).endsWith('.jpg'),
+        genre: z.array(
+            z.enum(['Accion', 'Drama', 'Comedia', 'Sci-Fi']),
+            {
+                required_error: 'Genero es requerido',
+                invalid_type_error: 'Genero debe ser un array de strings'
+            }
+        )
+    })
+    # Lo que no se valida, no se tiene en cuenta. Ej: patch {id = 5} -> no se va a tomar id
+
+    function validateMovie(object) {
+        return movieSchema.safeParse(object)
+    }
+
+    module.exports = {validateMovie}
+
+
+    /app.js 
+
+    app.post('/movies', (req, res) => {
+        const resut = validateMovie(req.body)
+
+        if (result.error){
+            return res.status(400).json({error: result.error.message})
+        }
+
+        const newMovie = {
+            result.data
+        }
+    })
+
+    fl0 -> free deploy 
+
+    planetscale -> deploy bd gratis
