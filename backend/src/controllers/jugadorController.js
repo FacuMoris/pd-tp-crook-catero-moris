@@ -1,53 +1,120 @@
-const jugadorModel = require('../models/jugadorModel')
-const rangoModel = require('../models/rangoModel')
+import * as jugadorModel from "../models/jugadorModel.js";
 
-exports.index = async (req, res) => {
+export const getMe = async (req, res) => {
   try {
-    const results = await jugadorModel.all()
-    res.json({ success: true, results })
-  } catch (error) {
-    console.log(error)
-    res
-      .status(500)
-      .json({ success: false, message: 'Error al recuperar los jugadores' })
+    const jugador = await jugadorModel.getByUsuarioId(req.user.ID);
+    return res.json({ success: true, result: jugador });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "Error al intentar recuperar el jugador",
+    });
   }
-}
+};
 
-exports.show = async (req, res) => {
-  const { ID } = req.params
+export const createMe = async (req, res) => {
+  const { nickname, id_rango, id_rol, edad, bio } = req.body;
+
+  if (!nickname || !id_rango || !id_rol) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Faltan datos obligatorios" });
+  }
 
   try {
-    const result = await jugadorModel.find(ID)
-    if (result == null) {
-      res.status(404).json({
+    const existente = await jugadorModel.getByUsuarioId(req.user.ID);
+    if (existente) {
+      return res.status(409).json({
         success: false,
-        message: 'El jugador no existe o ha dejado de existir'
-      })
-    } else {
-      res.json({ success: true, result })
+        message: "El usuario ya tiene perfil jugador",
+      });
     }
-  } catch (error) {
-    console.log(error)
-    res
-      .status(500)
-      .json({ success: false, message: 'Error al recuperar el jugador' })
-  }
-}
 
-exports.update = async (req, res) => {
-  const { ID } = req.params
-  const updates = req.body
+    await jugadorModel.createForUsuario({
+      id_usuario: req.user.ID,
+      nickname,
+      id_rango,
+      id_rol,
+      edad,
+      bio,
+    });
+
+    return res.json({ success: true, message: "Jugador creado correctamente" });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al intentar crear el jugador" });
+  }
+};
+
+export const updateMe = async (req, res) => {
+  const { nickname, id_rango, id_rol, edad, bio } = req.body;
+
+  if (!nickname || !id_rango || !id_rol) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Faltan datos obligatorios" });
+  }
 
   try {
-    await jugadorModel.update(ID, updates)
-    res.json({
+    const affected = await jugadorModel.updateForUsuario({
+      id_usuario: req.user.ID,
+      nickname,
+      id_rango,
+      id_rol,
+      edad,
+      bio,
+    });
+
+    if (!affected) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Jugador no encontrado" });
+    }
+
+    return res.json({
       success: true,
-      message: 'El jugador se modificó correctamente'
-    })
-  } catch (error) {
-    console.log(error)
-    res
-      .status(500)
-      .json({ success: false, message: 'Error al modificar el jugador' })
+      message: "Jugador actualizado correctamente",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "Error al intentar actualizar el jugador",
+    });
   }
-}
+};
+
+export const deleteMe = async (req, res) => {
+  try {
+    const affected = await jugadorModel.deleteForUsuario(req.user.ID);
+    if (!affected) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Jugador no encontrado" });
+    }
+    return res.json({
+      success: true,
+      message: "Jugador eliminado correctamente",
+    });
+  } catch (e) {
+    console.log("CREATE JUGADOR ERROR =>", {
+      code: e?.code,
+      errno: e?.errno,
+      sqlMessage: e?.sqlMessage,
+      message: e?.message,
+    });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error al intentar crear el jugador",
+      detail: {
+        code: e?.code,
+        sqlMessage: e?.sqlMessage,
+        message: e?.message,
+      },
+    });
+  }
+};

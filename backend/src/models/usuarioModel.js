@@ -1,60 +1,104 @@
-const connection = require('../../db')
-const { formatToday } = require('../helpers/dateHelper')
-const bcrypt = require('bcrypt')
+import connection from "../../db.js";
+import { formatToday } from "../helpers/dateHelper.js";
+import bcrypt from "bcrypt";
 
-exports.create = async ({
+export const create = async ({
   nombre,
   apellido,
-  pass,
   email,
   telefono,
-  is_admin
+  pass,
+  is_admin,
 }) => {
-  const pass_crypt = await bcrypt.hash(pass, 10)
-  const check = `
-    SELECT 1 FROM usuario WHERE email = ?`
-  const query = `
-    INSERT INTO usuario(nombre, apellido, pass, email, telefono, is_admin, activo, fecha_alta, fecha_modif)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `
+  const pass_crypt = await bcrypt.hash(pass, 10);
 
-  try {
-    const [[dupEmail]] = await connection.query(check, [email])
-    if (dupEmail) {
-      throw new Error('Email existente')
-    }
-    results = await connection.query(query, [
-      nombre,
-      apellido,
-      pass_crypt,
-      email,
-      telefono,
-      is_admin ? 1 : 0,
-      1,
-      formatToday(),
-      formatToday()
-    ])
-    return results
-  } catch (error) {
-    throw error
-  }
-}
+  const checkEmail = `SELECT 1 FROM usuario WHERE email = ?`;
+  const insert = `
+    INSERT INTO usuario(nombre, apellido, email, telefono, pass, is_admin, fecha_creacion, fecha_modificacion)
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
-exports.login = async ({ email, pass }) => {
+  const [[dup]] = await connection.query(checkEmail, [email]);
+  if (dup) throw new Error("Email existente");
+
+  await connection.query(insert, [
+    nombre,
+    apellido,
+    email,
+    telefono ?? null,
+    pass_crypt,
+    is_admin ? 1 : 0,
+    formatToday(),
+    formatToday(),
+  ]);
+};
+
+export const login = async ({ email, pass }) => {
   const query = `
     SELECT id, nombre, apellido, email, pass, is_admin
     FROM usuario
     WHERE email = ?
-    `
+  `;
 
-  try {
-    [results] = await connection.query(query, [email])
-    if (results.length == 1) {
-      const usuario = results[0]
-      const checkPass = await bcrypt.compare(pass, usuario.pass)
-      return checkPass ? usuario : null
-    } else {
-      return null
-    }
-  } catch (error) {}
-}
+  const [results] = await connection.query(query, [email]);
+  if (results.length !== 1) return null;
+
+  const usuario = results[0];
+
+  const ok = await bcrypt.compare(pass, usuario.pass);
+  if (!ok) return null;
+
+  return {
+    id: usuario.id,
+    nombre: usuario.nombre,
+    apellido: usuario.apellido,
+    email: usuario.email,
+    is_admin: usuario.is_admin == 1,
+  };
+};
+
+export const getAll = async () => {
+  const q = `
+    SELECT id, nombre, apellido, email, telefono, is_admin
+    FROM usuario
+    ORDER BY id
+  `;
+  const [rows] = await connection.query(q);
+  return rows;
+};
+
+export const getById = async (id) => {
+  const q = `
+    SELECT id, nombre, apellido, email, telefono, is_admin
+    FROM usuario
+    WHERE id = ?
+  `;
+  const [rows] = await connection.query(q, [id]);
+  return rows.length ? rows[0] : null;
+};
+
+export const updateById = async (
+  id,
+  { nombre, apellido, email, telefono, is_admin }
+) => {
+  const q = `
+    UPDATE usuario
+    SET nombre = ?, apellido = ?, email = ?, telefono = ?, is_admin = ?
+    WHERE id = ?
+  `;
+  const [result] = await connection.query(q, [
+    nombre,
+    apellido,
+    email,
+    telefono,
+    is_admin,
+    id,
+  ]);
+  return result.affectedRows;
+};
+
+export const removeById = async (id) => {
+  const q = `DELETE FROM usuario WHERE id = ?`;
+  const [result] = await connection.query(q, [id]);
+  return result.affectedRows;
+};

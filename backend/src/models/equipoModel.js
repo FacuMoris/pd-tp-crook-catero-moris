@@ -1,139 +1,96 @@
-const connection = require("../../db").default;
-const { formatToday } = require("../helpers/dateHelper");
-const jugadorModel = require("./jugadorModel");
+import connection from "../../db.js";
+import { formatToday } from "../helpers/dateHelper.js";
 
-exports.all = async () => {
-  const query = `
-    SELECT id, nombre, id_lider, num_jugadores
+export const getAllByLider = async (id_lider) => {
+  const q = `
+    SELECT id, nombre, id_lider, id_estado, fecha_estado, fecha_creacion, fecha_modificacion
     FROM equipo
-    `;
-  try {
-    [results] = await connection.query(query);
-    return results;
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error al recuperar los equipos" });
-  }
+    WHERE id_lider = ?
+    ORDER BY id DESC
+  `;
+  const [rows] = await connection.query(q, [id_lider]);
+  return rows;
 };
 
-exports.create = async ({ nombre, lider }) => {
-  const query = `
-    INSERT INTO equipo(nombre, id_usuario_lider, jugadores, estado, fecha_alta, fecha_estado)
+export const getById = async (id) => {
+  const q = `
+    SELECT id, nombre, id_lider, id_estado, fecha_estado, fecha_creacion, fecha_modificacion
+    FROM equipo
+    WHERE id = ?
+  `;
+  const [rows] = await connection.query(q, [id]);
+  return rows.length ? rows[0] : null;
+};
+
+export const create = async ({ nombre, id_lider, id_estado }) => {
+  const now = formatToday();
+  const q = `
+    INSERT INTO equipo(nombre, id_lider, id_estado, fecha_estado, fecha_creacion, fecha_modificacion)
     VALUES(?, ?, ?, ?, ?, ?)
-    `;
-
-  try {
-    await connection.query(query, [
-      nombre,
-      lider,
-      1,
-      "BUSCANDO",
-      formatToday(),
-      formatToday(),
-    ]);
-  } catch (error) {
-    throw error;
-  }
+  `;
+  const [result] = await connection.query(q, [
+    nombre,
+    id_lider,
+    id_estado,
+    now,
+    now,
+    now,
+  ]);
+  return result.insertId;
 };
 
-exports.find = async (ID) => {
-  const query = `
-    SELECT id, nombre, id_lider, num_jugadores, id_estado
-    FROM equipo
-    WHERE id = ?
-    `;
-
-  try {
-    [results] = await connection.query(query, [ID]);
-    return results.length == 1 ? results[0] : null;
-  } catch (error) {
-    throw error;
-  }
-};
-
-exports.update = async (ID, updates) => {
-  if (
-    !updates ||
-    typeof updates != "object" ||
-    Object.keys(updates).length === 0
-  ) {
-    throw new Error("No hay cambios para impactar");
-  }
-
-  const columnsModif = Object.keys(updates)
-    .map((key) => `${key} = ?`)
-    .join(", ");
-
-  console.log(columnsModif);
-
-  const query = `
+export const update = async (id, { nombre, id_estado }) => {
+  const now = formatToday();
+  const q = `
     UPDATE equipo
-    SET ${columnsModif},
-    fecha_estado = ?
+    SET nombre = ?, id_estado = ?, fecha_estado = ?, fecha_modificacion = ?
     WHERE id = ?
-    `;
-
-  const values = [...Object.values(updates), formatToday(), ID];
-
-  try {
-    await connection.query(query, values);
-  } catch (error) {
-    throw error;
-  }
+  `;
+  const [result] = await connection.query(q, [nombre, id_estado, now, now, id]);
+  return result.affectedRows;
 };
 
-exports.getActiveTeams = async () => {
-  const query = `
-    SELECT id, nombre, id_lider, num_jugadores
-    FROM equipo
-    WHERE id_estado = ?
-    `;
-  try {
-    const [teams] = await connection.query(query, [1]);
-
-    if (teams.length === 0) {
-      throw new Error("No hay equipos activos.");
-    }
-    console.log("teams ---> " + JSON.stringify(teams, null, 2));
-    const teamsWithPlayers = await Promise.all(
-      teams.map(async (team) => {
-        console.log("PROCESANDO TEAM " + JSON.stringify(team, null, 2));
-        const players = await jugadorModel.getPlayersByTeams(team.id);
-
-        // Obtener la información de cada jugador
-        const playersInfo = await Promise.all(
-          players.map(async (player) => {
-            console.log("PROCESANDO PLAYER " + JSON.stringify(player));
-            const userData = await jugadorModel.getUserDataByPlayer(
-              player.id_jugador
-            );
-            return userData[0]; // Asumiendo que `getUserDataByPlayer` devuelve un array con un solo objeto
-          })
-        );
-
-        return { ...team, playersInfo };
-      })
-    );
-    return teamsWithPlayers;
-  } catch (error) {
-    console.log(error);
-    throw new Error("Error a recuperar los equipos activos");
-  }
+export const remove = async (id) => {
+  const q = `DELETE FROM equipo WHERE id = ?`;
+  const [result] = await connection.query(q, [id]);
+  return result.affectedRows;
 };
 
-exports.getHistory = async (ID) => {
-  const query = `
-      SELECT id, nombre, id_lider, id_estado, fecha_estado
-      FROM equipo
-      WHERE id IN ( SELECT DISTINCT id FROM equipo_jugador WHERE id_jugador = ? )
-      `;
-  try {
-    [results] = await connection.query(query, [ID]);
-    return results;
-  } catch (error) {
-    console.log(error);
-    throw new Error("Error a recuperar el historial");
-  }
+export const getAll = async () => {
+  const q = `
+    SELECT e.id, e.nombre, e.id_lider, e.id_estado,
+           e.fecha_estado, e.fecha_creacion, e.fecha_modificacion,
+           j.nickname AS lider_nickname,
+           ee.nombre AS estado_nombre
+    FROM equipo e
+    JOIN jugador j ON j.id = e.id_lider
+    JOIN estado_equipo ee ON ee.id = e.id_estado
+    ORDER BY e.id DESC
+  `;
+  const [rows] = await connection.query(q);
+  return rows;
+};
+
+export const updateEstado = async (id, id_estado) => {
+  const now = formatToday();
+  const q = `
+    UPDATE equipo
+    SET id_estado = ?, fecha_estado = ?, fecha_modificacion = ?
+    WHERE id = ?
+  `;
+  const [result] = await connection.query(q, [id_estado, now, now, id]);
+  return result.affectedRows;
+};
+
+export const getByIdAndUsuario = async (id_equipo, id_usuario) => {
+  const q = `
+    SELECT e.id, e.nombre, e.id_lider, e.id_estado,
+           e.fecha_estado, e.fecha_creacion, e.fecha_modificacion
+    FROM equipo e
+    JOIN jugador j ON j.id = e.id_lider
+    WHERE e.id = ?
+      AND j.id_usuario = ?
+  `;
+  const [rows] = await connection.query(q, [id_equipo, id_usuario]);
+  return rows.length ? rows[0] : null;
 };

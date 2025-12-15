@@ -1,0 +1,99 @@
+import * as usuarioModel from "../models/usuarioModel.js";
+
+export const list = async (req, res) => {
+  try {
+    const usuarios = await usuarioModel.getAll();
+    return res.json({ success: true, result: usuarios });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al listar usuarios" });
+  }
+};
+
+export const get = async (req, res) => {
+  try {
+    const usuario = await usuarioModel.getById(Number(req.params.id));
+    if (!usuario) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+    return res.json({ success: true, result: usuario });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al obtener usuario" });
+  }
+};
+
+export const update = async (req, res) => {
+  const { nombre, apellido, email, telefono, is_admin } = req.body;
+
+  if (
+    nombre === undefined ||
+    apellido === undefined ||
+    email === undefined ||
+    telefono === undefined ||
+    is_admin === undefined
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Faltan datos obligatorios" });
+  }
+
+  try {
+    const affected = await usuarioModel.updateById(Number(req.params.id), {
+      nombre,
+      apellido,
+      email,
+      telefono,
+      is_admin,
+    });
+
+    if (!affected) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    return res.json({
+      success: true,
+      message: "Usuario actualizado correctamente",
+    });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al actualizar usuario" });
+  }
+};
+
+export const remove = async (req, res) => {
+  try {
+    const affected = await usuarioModel.removeById(Number(req.params.id));
+    if (!affected) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+    return res.json({
+      success: true,
+      message: "Usuario eliminado correctamente",
+    });
+  } catch (e) {
+    console.log("DELETE USUARIO ERROR =>", {
+      code: e?.code,
+      errno: e?.errno,
+      sqlMessage: e?.sqlMessage,
+    });
+
+    return res.status(409).json({
+      success: false,
+      message:
+        "No se puede eliminar el usuario porque tiene información asociada",
+    });
+  }
+};

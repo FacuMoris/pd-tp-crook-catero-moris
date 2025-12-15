@@ -1,28 +1,40 @@
-const jwt = require('jsonwebtoken')
+import jwt from "jsonwebtoken";
 
-exports.requireAuth = (req, res, next) => {
-  const authHeader = req.headers.authorization
+export const requireAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
   if (!authHeader) {
     return res.status(401).json({
       success: false,
-      message: 'Token de autenticación no proporcionado'
-    })
+      message: "Token de autenticación no proporcionado",
+    });
   }
 
-  const [bearer, token] = authHeader.split(' ')
-  if (bearer != 'Bearer' || !token) {
-    return res
-      .status(401)
-      .json({ success: false, message: 'Formato de token inválido' })
+  const [bearer, token] = authHeader.split(" ");
+  if (bearer !== "Bearer" || !token) {
+    return res.status(401).json({
+      success: false,
+      message: "Formato de token inválido",
+    });
   }
 
   try {
-    const decodedToken = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET)
-    req.user = decodedToken
-    next()
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET);
+    req.user = decoded;
+    next();
   } catch (error) {
-    return res
-      .status(401)
-      .json({ success: false, message: 'Token de autenticación inválido' })
+    return res.status(401).json({
+      success: false,
+      message: "Token de autenticación inválido",
+    });
   }
-}
+};
+
+export const logout = async (req, res) => {
+  // En este backend no persistimos tokens,
+  // el logout es responsabilidad del frontend
+  return res.json({
+    success: true,
+    message: "Logout exitoso",
+  });
+};

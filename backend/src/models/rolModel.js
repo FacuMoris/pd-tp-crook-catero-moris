@@ -1,20 +1,48 @@
-import { query as _query } from "../../db";
-import { formatToday } from "../helpers/dateHelper";
+import connection from "../../db.js";
+import { formatToday } from "../helpers/dateHelper.js";
 
-export async function find(ID) {
-  const query = `
-        SELECT id, rango, nro_div
-        FROM rango
-        WHERE id = ?
-        `;
+export const getAll = async () => {
+  const q = `SELECT id, nombre, descripcion, fecha_creacion, fecha_modificacion FROM rol ORDER BY id`;
+  const [rows] = await connection.query(q);
+  return rows;
+};
 
-  try {
-    [rango] = await _query(query, [ID]);
-    result = rango.length == 1 ? formatRango(rango) : null;
-    return result;
-  } catch (error) {
-    throw error;
-  }
-}
+export const getById = async (id) => {
+  const q = `SELECT id, nombre, descripcion, fecha_creacion, fecha_modificacion FROM rol WHERE id = ?`;
+  const [rows] = await connection.query(q, [id]);
+  return rows.length ? rows[0] : null;
+};
 
-export async function create() {}
+export const create = async ({ nombre, descripcion }) => {
+  const q = `
+    INSERT INTO rol(nombre, descripcion, fecha_creacion, fecha_modificacion)
+    VALUES(?, ?, ?, ?)
+  `;
+  await connection.query(q, [
+    nombre,
+    descripcion ?? null,
+    formatToday(),
+    formatToday(),
+  ]);
+};
+
+export const update = async (id, { nombre, descripcion }) => {
+  const q = `
+    UPDATE rol
+    SET nombre = ?, descripcion = ?, fecha_modificacion = ?
+    WHERE id = ?
+  `;
+  const [result] = await connection.query(q, [
+    nombre,
+    descripcion ?? null,
+    formatToday(),
+    id,
+  ]);
+  return result.affectedRows;
+};
+
+export const remove = async (id) => {
+  const q = `DELETE FROM rol WHERE id = ?`;
+  const [result] = await connection.query(q, [id]);
+  return result.affectedRows;
+};

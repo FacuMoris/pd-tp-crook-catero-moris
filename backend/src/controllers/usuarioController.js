@@ -1,109 +1,139 @@
-const usuarioModel = require('../models/usuarioModel')
-const jwt = require('jsonwebtoken')
+import jwt from "jsonwebtoken";
+import * as usuarioModel from "../models/usuarioModel.js";
 
-exports.register = async (req, res) => {
-  const { nombre, apellido, email, pass, telefono } = req.body
-  const is_admin = false
+export const register = async (req, res) => {
+  const { nombre, apellido, email, telefono, pass } = req.body;
 
   try {
     await usuarioModel.create({
       nombre,
       apellido,
-      pass,
       email,
       telefono,
-      is_admin
-    })
-    res.json({ success: true, message: 'Usuario registrado correctamente.' })
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({
-      success: false,
-      message: error.message
-    })
-  }
-}
+      pass,
+      is_admin: false,
+    });
 
-exports.login = async (req, res) => {
-  const { email, pass } = req.body
+    res.json({ success: true, message: "Usuario registrado correctamente" });
+  } catch (error) {
+    if (error.message === "Email existente") {
+      return res
+        .status(409)
+        .json({ success: false, message: "Email existente" });
+    }
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error al intentar registrar al usuario",
+    });
+  }
+};
+
+export const login = async (req, res) => {
+  const { email, pass } = req.body;
+
+  // validación mínima (evita request vacíos)
+  if (!email || !pass) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Faltan credenciales" });
+  }
 
   try {
-    const usuario = await usuarioModel.login({ email, pass })
-    if (usuario == null) {
-      res.json({ success: false, message: 'Credenciales inexistentes' })
-    } else {
-      const playload = {
-        ID: usuario.id,
-        nombre: usuario.nombre,
-        apellido: usuario.apellido,
-        email: usuario.email,
-        is_admin: usuario.is_admin == 1
-      }
+    const usuario = await usuarioModel.login({ email, pass });
 
-      const accessToken = jwt.sign(
-        playload,
-        process.env.JWT_ACCESS_TOKEN_SECRET,
-        { expiresIn: '15m' }
-      )
-
-      const refreshToken = jwt.sign(
-        playload,
-        process.env.JWT_REFRESH_TOKEN_SECRET,
-        { expiresIn: '1d' }
-      )
-
-      res.json({
-        success: true,
-        message: 'Inicio de sesión exitoso',
-        accessToken,
-        refreshToken
-      })
+    if (!usuario) {
+      return res.json({ success: false, message: "Credenciales incorrectas" });
     }
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({ success: false, message: 'Error al ' })
-  }
-}
 
-exports.refreshToken = (req, res) => {
-  const authHeader = req.headers.authorization
+    const payload = {
+      ID: usuario.id,
+      nombre: usuario.nombre,
+      is_admin: usuario.is_admin,
+    };
+
+    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_TOKEN_SECRET, {
+      expiresIn: "15m",
+    });
+
+    const refreshToken = jwt.sign(
+      payload,
+      process.env.JWT_REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    return res.json({
+      success: true,
+      message: "Inicio de sesión exitoso",
+      nombre: usuario.nombre,
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al intentar iniciar sesión" });
+  }
+};
+
+export const welcome = (req, res) => {
+  res.json({
+    success: true,
+    message: `Bienvenida/o ${req.user.nombre}`,
+  });
+};
+
+export const refreshToken = (req, res) => {
+  const authHeader = req.headers.authorization;
+
   if (!authHeader) {
     return res.status(401).json({
       success: false,
-      message: 'Token de autenticación no proporcionado'
-    })
+      message: "Token de autenticación no proporcionado",
+    });
   }
 
-  const [bearer, token] = authHeader.split(' ')
-  if (bearer != 'Bearer' || !token) {
-    return res
-      .status(401)
-      .json({ success: false, message: 'Formato de token no válido' })
+  const [bearer, token] = authHeader.split(" ");
+
+  if (bearer !== "Bearer" || !token) {
+    return res.status(401).json({
+      success: false,
+      message: "Formato de token inválido",
+    });
   }
 
   try {
-    const usuario = jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET)
-    const playload = {
-      ID: usuario.id,
+    const usuario = jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET);
+
+    const payload = {
+      ID: usuario.ID,
       nombre: usuario.nombre,
-      apellido: usuario.apellido,
-      email: usuario.email,
-      is_admin: usuario.is_admin == 1
-    }
+      is_admin: usuario.is_admin,
+    };
 
     const newAccessToken = jwt.sign(
-      playload,
+      payload,
       process.env.JWT_ACCESS_TOKEN_SECRET,
-      { expiresIn: '15m' }
-    )
-    res.json({ success: true, accessToken: newAccessToken })
-  } catch (error) {
-    return res
-      .status(401)
-      .json({ success: false, message: 'Token de autenticación inválido' })
-  }
-}
+      { expiresIn: "15m" }
+    );
 
-exports.welcome = (req, res) => {
-  res.json({ success: true, message: 'Bienvenido ' + req.user.nombre })
-}
+    return res.json({
+      success: true,
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Token de autenticación inválido",
+    });
+  }
+};
+export const logout = (req, res) => {
+  return res.json({
+    success: true,
+    message: "Logout exitoso",
+  });
+};

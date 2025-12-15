@@ -1,12 +1,12 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from "express";
+import { requireAuth } from "../middleware/auth.js";
+import * as jugadorController from "../controllers/jugadorController.js";
 
-const jugadorController = require('../controllers/jugadorController')
+const router = Router();
 
-router.get('/jugadores', jugadorController.index)
+router.get("/me/jugador", requireAuth, jugadorController.getMe);
+router.post("/me/jugador", requireAuth, jugadorController.createMe);
+router.put("/me/jugador", requireAuth, jugadorController.updateMe);
+router.delete("/me/jugador", requireAuth, jugadorController.deleteMe);
 
-router.get('/jugadores/:ID', jugadorController.show)
-
-router.put('/jugadores/:ID', jugadorController.update)
-
-module.exports = router
+export default router;

@@ -1,117 +1,123 @@
-const connection = require("../../db").default;
-const { formatToday } = require("../helpers/dateHelper");
-const { formatRango } = require("./rangoModel");
+import connection from "../../db.js";
+import { formatToday } from "../helpers/dateHelper.js";
 
-exports.getPlayersByTeams = async (teamId) => {
-  console.log("teamIds en jugModel---> " + JSON.stringify(teamId));
-
-  const query = `
-      SELECT DISTINCT id_jugador
-      FROM equipo_jugador
-      WHERE activo = 1
-      AND id_equipo = ?
-      ORDER BY fecha_alta DESC
-      LIMIT 5
-      `;
-
-  try {
-    [results] = await connection.query(query, teamId);
-    if (!results || results.length === 0) {
-      return [];
-    }
-    console.log("Query Results:", results);
-    return results;
-  } catch (error) {
-    console.log(error);
-    throw new Error("Error al recuperar los jugadores de los equipos.");
-  }
+export const getByUsuarioId = async (id_usuario) => {
+  const q = `
+    SELECT id, id_usuario, nickname, id_rango, id_rol, edad, bio, fecha_creacion, fecha_modificacion
+    FROM jugador
+    WHERE id_usuario = ?
+  `;
+  const [rows] = await connection.query(q, [id_usuario]);
+  return rows.length ? rows[0] : null;
 };
 
-exports.getUserDataByPlayer = async (playerId) => {
-  console.log("jugadorModel -> playerIds = " + JSON.stringify(playerId));
-
-  const query = `
-      SELECT id_usuario, username, tag, img, id_rango, id_rol, id_agente
-      FROM usuario_perfil
-      WHERE id_usuario = ?
-      `;
-
-  try {
-    [results] = await connection.query(query, [playerId]);
-    console.log("User Details:", results);
-  } catch (error) {
-    console.log(error);
-    throw new Error("Error al recuperar los detalles del usuario.");
-  }
-
-  results.map((user) => {
-    user.id_usuario = user.id_usuario;
-    user.player = user.username + "#" + user.tag;
-    user.img = user.img ? user.img : null;
-  });
-
-  return results;
+export const createForUsuario = async ({
+  id_usuario,
+  nickname,
+  id_rango,
+  id_rol,
+  edad,
+  bio,
+}) => {
+  const q = `
+    INSERT INTO jugador(id_usuario, nickname, id_rango, id_rol, edad, bio, fecha_creacion, fecha_modificacion)
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  await connection.query(q, [
+    id_usuario,
+    nickname,
+    id_rango,
+    id_rol,
+    edad ?? null,
+    bio ?? null,
+    formatToday(),
+    formatToday(),
+  ]);
 };
 
-exports.all = async () => {
-  const query = `
-      SELECT id_usuario, username, tag, img, id_rango, id_rol, id_agente
-      FROM usuario_perfil
-      `;
-  try {
-    [results] = await connection.query(query);
-    return results;
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Error al recuperar los jugadores del modelo",
-    });
-  }
+export const updateForUsuario = async ({
+  id_usuario,
+  nickname,
+  id_rango,
+  id_rol,
+  edad,
+  bio,
+}) => {
+  const q = `
+    UPDATE jugador
+    SET nickname = ?, id_rango = ?, id_rol = ?, edad = ?, bio = ?, fecha_modificacion = ?
+    WHERE id_usuario = ?
+  `;
+  const [result] = await connection.query(q, [
+    nickname,
+    id_rango,
+    id_rol,
+    edad ?? null,
+    bio ?? null,
+    formatToday(),
+    id_usuario,
+  ]);
+  return result.affectedRows;
 };
 
-exports.find = async (ID) => {
-  const query = `
-      SELECT id_usuario, username, tag, img, id_rango, id_rol, id_agente
-      FROM usuario_perfil
-      WHERE id_usuario = ?
-      `;
-
-  try {
-    [results] = await connection.query(query, [ID]);
-    return results.length == 1 ? results[0] : null;
-  } catch (error) {
-    throw error;
-  }
+export const deleteForUsuario = async (id_usuario) => {
+  const q = `DELETE FROM jugador WHERE id_usuario = ?`;
+  const [result] = await connection.query(q, [id_usuario]);
+  return result.affectedRows;
 };
 
-exports.update = async (ID, updates) => {
-  if (
-    !updates ||
-    typeof updates !== "object" ||
-    Object.keys(updates).length === 0
-  ) {
-    throw new Error("No hay cambios para impactar");
-  }
+export const getAll = async () => {
+  const q = `
+    SELECT j.id, j.nickname, j.edad, j.bio,
+           r.nombre AS rango,
+           ro.nombre AS rol,
+           u.email
+    FROM jugador j
+    JOIN rango r ON r.id = j.id_rango
+    JOIN rol ro ON ro.id = j.id_rol
+    JOIN usuario u ON u.id = j.id_usuario
+    ORDER BY j.id
+  `;
+  const [rows] = await connection.query(q);
+  return rows;
+};
 
-  const columnsModif = Object.keys(updates)
-    .map((key) => `${key} = ?`)
-    .join(", ");
+export const getByIdAdmin = async (id) => {
+  const q = `
+    SELECT j.id, j.nickname, j.edad, j.bio,
+           j.id_rango, j.id_rol,
+           u.email
+    FROM jugador j
+    JOIN usuario u ON u.id = j.id_usuario
+    WHERE j.id = ?
+  `;
+  const [rows] = await connection.query(q, [id]);
+  return rows.length ? rows[0] : null;
+};
 
-  console.log(columnsModif);
+export const updateById = async (
+  id,
+  { nickname, id_rango, id_rol, edad, bio }
+) => {
+  const q = `
+    UPDATE jugador
+    SET nickname = ?, id_rango = ?, id_rol = ?, edad = ?, bio = ?, fecha_modificacion = ?
+    WHERE id = ?
+  `;
+  const [result] = await connection.query(q, [
+    nickname,
+    id_rango,
+    id_rol,
+    edad ?? null,
+    bio ?? null,
+    formatToday(),
+    id,
+  ]);
+  return result.affectedRows;
+};
 
-  const query = `
-      UPDATE usuario_perfil
-      SET ${columnsModif},
-      ult_modificacion = ?
-      WHERE id_usuario = ?
-      `;
-
-  const values = [...Object.values(updates), formatToday(), ID];
-
-  try {
-    await connection.query(query, values);
-  } catch (error) {
-    throw error;
-  }
+export const removeById = async (id) => {
+  const q = `DELETE FROM jugador WHERE id = ?`;
+  const [result] = await connection.query(q, [id]);
+  return result.affectedRows;
 };
