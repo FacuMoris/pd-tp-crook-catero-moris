@@ -4,15 +4,14 @@ import * as equipoController from "../controllers/equipoController.js";
 
 const router = Router();
 
-// ABM de mis equipos
 router.get("/equipos", equipoController.listAll);
 router.get("/me/equipos", requireAuth, equipoController.listMine);
 router.get("/me/equipos/:id", requireAuth, equipoController.getById);
-router.post("/me/equipos", requireAuth, equipoController.createMine);
+router.get("/me/equipo-actual", requireAuth, equipoController.getEquipoActual);
 router.put("/me/equipos/:id", requireAuth, equipoController.updateMine);
+router.post("/me/equipos", requireAuth, equipoController.createMine);
 router.delete("/me/equipos/:id", requireAuth, equipoController.deleteMine);
 router.post("/equipos/:id/unirse", requireAuth, equipoController.unirse);
-router.get("/me/equipo-actual", requireAuth, equipoController.getEquipoActual);
 router.post("/equipos/:id/salir", requireAuth, equipoController.salir);
 router.get("/equipos/:id/mensajes", requireAuth, equipoController.listMensajes);
 router.post(

@@ -150,3 +150,32 @@ export const updatePasswordById = async (id, passNueva) => {
   const [result] = await connection.query(q, [pass_crypt, formatToday(), id]);
   return result.affectedRows > 0;
 };
+export const createByAdmin = async ({
+  nombre,
+  apellido,
+  email,
+  telefono,
+  pass,
+  is_admin,
+}) => {
+  const now = formatToday();
+  const passHash = await bcrypt.hash(String(pass), 10);
+
+  const q = `
+    INSERT INTO usuario(nombre, apellido, email, telefono, pass, is_admin, fecha_creacion, fecha_modificacion)
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const [result] = await connection.query(q, [
+    nombre,
+    apellido,
+    email,
+    telefono ?? "",
+    passHash,
+    is_admin ? 1 : 0,
+    now,
+    now,
+  ]);
+
+  return result.insertId;
+};

@@ -90,7 +90,6 @@ export const getByIdAndUsuario = async (id_equipo, id_usuario) => {
   return rows.length ? rows[0] : null;
 };
 
-// ✅ ESTA ES LA FUNCIÓN QUE TE FALTA Y POR ESO ROMPE /me/equipo-actual
 export const getEquipoActualByJugador = async (id_jugador) => {
   const q = `
     SELECT
@@ -119,7 +118,6 @@ export const getEquipoActualByJugador = async (id_jugador) => {
   return rows.length ? rows[0] : null;
 };
 
-// líder sale => estado 3 (cerrado)
 export const cerrarEquipo = async (id_equipo, conn = connection) => {
   const now = formatToday();
   const q = `

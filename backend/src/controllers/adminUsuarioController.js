@@ -29,6 +29,52 @@ export const get = async (req, res) => {
   }
 };
 
+export const create = async (req, res) => {
+  const { nombre, apellido, email, telefono, pass, is_admin } = req.body;
+
+  if (!nombre || !apellido || !email || !pass) {
+    return res.status(400).json({
+      success: false,
+      message: "Faltan datos obligatorios (nombre, apellido, email, pass)",
+    });
+  }
+
+  try {
+    const id = await usuarioModel.createByAdmin({
+      nombre,
+      apellido,
+      email,
+      telefono: telefono ?? "",
+      pass,
+      is_admin: is_admin ? 1 : 0,
+    });
+
+    return res.json({
+      success: true,
+      message: "Usuario creado correctamente",
+      id,
+    });
+  } catch (e) {
+    console.log("CREATE ADMIN USUARIO ERROR =>", {
+      code: e?.code,
+      errno: e?.errno,
+      sqlMessage: e?.sqlMessage,
+      message: e?.message,
+    });
+
+    if (e?.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        success: false,
+        message: "Ya existe un usuario con ese email",
+      });
+    }
+
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al crear usuario" });
+  }
+};
+
 export const update = async (req, res) => {
   const { nombre, apellido, email, telefono, is_admin } = req.body;
 
