@@ -12,6 +12,8 @@ import jugadorRoutes from "./src/routes/jugadorRoutes.js";
 import adminEquipoRoutes from "./src/routes/adminEquipoRoutes.js";
 import adminUsuarioRoutes from "./src/routes/adminUsuarioRoutes.js";
 import adminJugadorRoutes from "./src/routes/adminJugadorRoutes.js";
+import rolRoutes from "./src/routes/rolRoutes.js";
+import rangoRoutes from "./src/routes/rangoRoutes.js";
 
 dotenv.config();
 
@@ -42,6 +44,8 @@ app.use(jugadorRoutes);
 app.use(adminEquipoRoutes);
 app.use(adminUsuarioRoutes);
 app.use(adminJugadorRoutes);
+app.use(rolRoutes);
+app.use(rangoRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "Endpoint no encontrado" });
