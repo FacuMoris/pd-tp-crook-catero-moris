@@ -31,8 +31,6 @@ export const requireAuth = (req, res, next) => {
 };
 
 export const logout = async (req, res) => {
-  // En este backend no persistimos tokens,
-  // el logout es responsabilidad del frontend
   return res.json({
     success: true,
     message: "Logout exitoso",

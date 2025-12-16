@@ -32,7 +32,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { email, pass } = req.body;
 
-  // validación mínima (evita request vacíos)
+  // validación (evita request vacíos)
   if (!email || !pass) {
     return res
       .status(400)

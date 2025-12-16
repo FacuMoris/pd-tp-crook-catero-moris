@@ -4,7 +4,7 @@ import * as equipoController from "../controllers/equipoController.js";
 
 const router = Router();
 
-// ABM de mis equipos (donde soy líder)
+// ABM de mis equipos
 router.get("/equipos", equipoController.listAll);
 router.get("/me/equipos", requireAuth, equipoController.listMine);
 router.get("/me/equipos/:id", requireAuth, equipoController.getById);
@@ -12,7 +12,7 @@ router.post("/me/equipos", requireAuth, equipoController.createMine);
 router.put("/me/equipos/:id", requireAuth, equipoController.updateMine);
 router.delete("/me/equipos/:id", requireAuth, equipoController.deleteMine);
 
-// miembros (solo líder)
+// miembros
 router.get(
   "/me/equipos/:id/miembros",
   requireAuth,

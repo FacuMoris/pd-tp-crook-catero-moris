@@ -33,9 +33,8 @@ const assertEsLider = async (req, res, id_equipo) => {
   return { equipo, miJugadorId };
 };
 
-/* =========================
-   MIS EQUIPOS (LÍDER)
-========================= */
+// MIS EQUIPOS
+
 export const listMine = async (req, res) => {
   try {
     const miJugadorId = await getMiJugadorId(req);
@@ -147,9 +146,7 @@ export const deleteMine = async (req, res) => {
   }
 };
 
-/* =========================
-   MIEMBROS (SOLO LÍDER)
-========================= */
+// MIEMBROS
 export const listMiembros = async (req, res) => {
   try {
     const ok = await assertEsLider(req, res, Number(req.params.id));
