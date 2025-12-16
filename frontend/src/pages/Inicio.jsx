@@ -19,18 +19,17 @@ export const Inicio = () => {
                     col='4'
                     titulo='Conectá con jugadores'
                     descripcion='Tenés un equipo pero siempre te falta uno? Valorant Conecta te permite encontrar jugadores según su rango y sus agentes más usados.'
-                    img='./img/bg/omen.png'/>
-                    
+                    img='./img/bg/omen.png' />
 
-                        <Card
+
+                <Card
                     col='4'
                     titulo='Encontrá tu equipo'
                     descripcion='Hay muchos equipos esperándote para que seas parte, encontrá el tuyo!.'
-                    img='./img/bg/jett.jpg'/>
-                    
+                    img='./img/bg/jett.jpg' />
+
 
             </div>
-            <Footer />
         </>
     );
 }

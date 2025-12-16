@@ -1,10 +1,9 @@
 import { Footer } from "../components/Footer"
 export const Perfil = () => {
 
-    return(
+    return (
         <>
-        <h2>Perfil</h2>
-        <Footer/>
+            <h2>Perfil</h2>
         </>
     )
 }

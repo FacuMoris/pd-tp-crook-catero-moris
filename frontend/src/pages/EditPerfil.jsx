@@ -3,10 +3,9 @@ import { Footer } from "../components/Footer"
 export const EditPerfil = () => {
 
 
-    return(
+    return (
         <>
-        <h2>Editar perfil</h2>
-        <Footer/>
+            <h2>Editar perfil</h2>
         </>
     )
 }

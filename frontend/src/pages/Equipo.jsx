@@ -10,10 +10,9 @@ export const Equipo = () => {
         <>
             <div>
                 <h2 className='text-center pt-5'>FORMÁ TU EQUIPO</h2>
-                <RegistroEquipo/>
-               
+                <RegistroEquipo />
+
             </div>
-            <Footer />
         </>
     );
 };

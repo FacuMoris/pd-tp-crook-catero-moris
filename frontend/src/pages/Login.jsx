@@ -2,7 +2,6 @@ import { BannerReyna } from "../components/BannerReyna";
 import { useAuth } from "../context/AuthContext"
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Footer } from "../components/Footer";
 import axios from "axios";
 
 export const Login = () => {
@@ -54,7 +53,6 @@ export const Login = () => {
                     </div>
                 </div>
             </form>
-            <Footer />
         </>
     )
 }

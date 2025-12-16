@@ -1,4 +1,11 @@
-#reg-confirmacion{
-    height: 400px;
-    text-align: center;
+#reg-confirmacion {
+  background: #fff;
+}
+
+#reg-confirmacion .lead {
+  font-size: 1.05rem;
+}
+
+#reg-confirmacion .btn {
+  min-width: 200px;
 }

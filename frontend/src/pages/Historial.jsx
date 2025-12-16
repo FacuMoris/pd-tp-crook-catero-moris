@@ -1,10 +1,9 @@
 import { Footer } from "../components/Footer";
 
 export const Historial = () => {
-    return(
+    return (
         <>
-        <h2>Historial</h2>
-        <Footer/>
+            <h2>Historial</h2>
         </>
     )
 };

@@ -1,10 +1,9 @@
 import { Footer } from "../components/Footer";
 
 export const Blog = () => {
-    return(
+    return (
         <>
-        <h2>Blog</h2>
-        <Footer/>
+            <h2>Blog</h2>
         </>
     );
 }

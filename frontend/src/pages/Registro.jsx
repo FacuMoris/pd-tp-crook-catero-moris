@@ -1,124 +1,227 @@
 import { useState } from "react";
-import { BannerReyna } from "../components/BannerReyna"
-import { Footer } from "../components/Footer"
-import './styles/Registro.css'
+import { BannerReyna } from "../components/BannerReyna";
+import "./styles/Registro.css";
+import axios from "axios";
 import { ConfirmoRegistro } from "../components/ConfirmoRegistro";
 
-
 export const Registro = () => {
-
+    const API = "http://localhost:8888";
 
     const [registro, setRegistro] = useState(false);
 
-    const handleRegistro = () => {
-        setRegistro(true);
-    };
-    
+    // mensajes
+    const [errorMsg, setErrorMsg] = useState("");
+    const [okMsg, setOkMsg] = useState("");
+    const [cargandoRegistro, setCargandoRegistro] = useState(false);
 
+    // form
+    const [nombre, setNombre] = useState("");
+    const [apellido, setApellido] = useState("");
+    const [email, setEmail] = useState("");
+    const [telefono, setTelefono] = useState("");
+    const [pass1, setPass1] = useState("");
+    const [pass2, setPass2] = useState("");
+
+    //ui
+
+    const esEmailValido = (value) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+    };
+
+    const handleRegistro = async () => {
+        setErrorMsg("");
+        setOkMsg("");
+
+        if (!nombre || !apellido || !email || !pass1 || !pass2) {
+            setErrorMsg("Completá los campos obligatorios.");
+            return;
+        }
+
+        if (!esEmailValido(email)) {
+            setErrorMsg("Ingresá un email válido (ej: usuario@dominio.com).");
+            return;
+        }
+
+        if (pass1 !== pass2) {
+            setErrorMsg("Las contraseñas no coinciden.");
+            return;
+        }
+
+        try {
+            setCargandoRegistro(true);
+
+            const registerRes = await axios.post(`${API}/register`, {
+                nombre,
+                apellido,
+                email,
+                telefono,
+                pass: pass1,
+            });
+
+            if (!registerRes.data?.success) {
+                setErrorMsg(registerRes.data?.message ?? "No se pudo registrar el usuario");
+                return;
+            }
+
+            setOkMsg("Usuario registrado correctamente.");
+            setRegistro(true);
+        } catch (error) {
+            const msg =
+                error?.response?.data?.message || error.message || "Error desconocido";
+            setErrorMsg(msg);
+        } finally {
+            setCargandoRegistro(false);
+        }
+    };
 
     if (registro) {
         return (
             <>
                 <BannerReyna />
-                <div className="row justify-content-center align-items-center">
-                <ConfirmoRegistro/>
+                <div className="container py-4">
+                    <div className="row justify-content-center">
+                        <div className="col-12 col-md-10 col-lg-8 col-xl-6">
+                            <ConfirmoRegistro />
+                        </div>
+                    </div>
                 </div>
-                <Footer />
             </>
-        )
-
-    } else {
-
-        return (
-            <>
-                <BannerReyna />
-                <h2 className="text-center mb-5 mt-5">REGISTRO</h2>
-                <form className="fs-5">
-                    <div className="row justify-content-center">
-                        <div className="col-4">
-
-                            <div className='mb-3'>
-                                <label htmlFor='input-nombre' className='form-label'>Nombre </label>
-                                <input type='text' className='form-control' id='input-nombre' aria-describedby='nombre' />
-                            </div>
-                            <div className='mb-3'>
-                                <label htmlFor='input-pass1' className='form-label'> Contraseña</label>
-                                <input type='password' className='form-control' id='input-pass1' />
-                            </div>
-                        </div>
-                        <div className="col-4">
-                            <div className='mb-3'>
-                                <label htmlFor='input-apellido' className='form-label'>Apellido </label>
-                                <input type='text' className='form-control' id='input-apellido' aria-describedby='email' />
-                            </div>
-                            <div className='mb-3'>
-                                <label htmlFor='input-pass2' className='form-label'> Repita su contraseña</label>
-                                <input type='password' className='form-control' id='input-pass2' />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row justify-content-center">
-                        <div className="col-4">
-
-                            <div className='mb-3'>
-                                <label htmlFor='input-rol' className='form-label'>Rol dominante </label>
-                                <select className="form-select" id="input-rol">
-                                    <option value="">Selecciona un rol</option>
-                                    <option value="">Duelista</option>
-                                    <option value="">Iniciador</option>
-                                    <option value="">Controlador</option>
-                                    <option value="">Centinela</option>
-                                </select>
-                            </div>
-                            <div className='mb-3'>
-                                <label htmlFor='input-rango' className='form-label'>Mayor rango obtenido </label>
-                                <select className="form-select" id="input-rango">
-                                    <option value="">Selecciona una rango</option>
-                                    <option value="">Hierro</option>
-                                    <option value="">Bronce</option>
-                                    <option value="">Plata</option>
-                                    <option value="">Oro</option>
-                                    <option value="">Platino</option>
-                                    <option value="">Diamante</option>
-                                    <option value="">Ascendente</option>
-                                    <option value="">Inmortal</option>
-                                    <option value="">Radiante</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="col-4">
-                            <div className='mb-3'>
-                                <label htmlFor='input-agente' className='form-label'>Agente dominante </label>
-                                <select className="form-select" id="input-agente">
-                                    <option value="">Selecciona un agente</option>
-                                    <option value="">Killjoy</option>
-                                    <option value="">Reyna</option>
-                                    <option value="">Omen</option>
-                                    <option value="">Phoenix</option>
-                                </select>
-                            </div>
-                            <div className='mb-3'>
-                                <label htmlFor='input-division' className='form-label'>División alcanzada</label>
-                                <select className="form-select" id="input-division">
-                                    <option value="">Selecciona una división</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row justify-content-center text-center">
-                        <div className="col-2 mt-4">
-
-                            <button type='button' onClick={handleRegistro} className='btn btn-primary fs-5 w-100 mt-4'>
-                                Confirmar
-                            </button>
-                        </div>
-                    </div>
-                </form>
-                <Footer />
-            </>
-        )
+        );
     }
-}
+
+    return (
+        <>
+            <BannerReyna />
+
+            <div className="container py-4">
+                <h2 className="text-center mb-4 mt-3">REGISTRO</h2>
+
+                <div className="row justify-content-center">
+                    <div className="col-12 col-md-9 col-lg-8 col-xl-7">
+                        <form className="fs-5" onSubmit={(e) => e.preventDefault()}>
+                            {errorMsg && (
+                                <div className="alert alert-danger" role="alert">
+                                    {errorMsg}
+                                </div>
+                            )}
+
+                            {okMsg && (
+                                <div className="alert alert-success" role="alert">
+                                    {okMsg}
+                                </div>
+                            )}
+
+                            <div className="row g-3">
+                                <div className="col-12 col-lg-6">
+                                    <div className="mb-3">
+                                        <label htmlFor="input-nombre" className="form-label">
+                                            Nombre
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="input-nombre"
+                                            value={nombre}
+                                            onChange={(e) => setNombre(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="col-12 col-lg-6">
+                                    <div className="mb-3">
+                                        <label htmlFor="input-apellido" className="form-label">
+                                            Apellido
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="input-apellido"
+                                            value={apellido}
+                                            onChange={(e) => setApellido(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="col-12 col-lg-6">
+                                    <div className="mb-3">
+                                        <label htmlFor="input-email" className="form-label">
+                                            Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            className="form-control"
+                                            id="input-email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="col-12 col-lg-6">
+                                    <div className="mb-3">
+                                        <label htmlFor="input-telefono" className="form-label">
+                                            Teléfono (opcional)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="input-telefono"
+                                            value={telefono}
+                                            onChange={(e) => setTelefono(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="col-12 col-lg-6">
+                                    <div className="mb-3">
+                                        <label htmlFor="input-pass1" className="form-label">
+                                            Contraseña
+                                        </label>
+                                        <input
+                                            type="password"
+                                            className="form-control"
+                                            id="input-pass1"
+                                            value={pass1}
+                                            onChange={(e) => setPass1(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="col-12 col-lg-6">
+                                    <div className="mb-3">
+                                        <label htmlFor="input-pass2" className="form-label">
+                                            Repita su contraseña
+                                        </label>
+                                        <input
+                                            type="password"
+                                            className="form-control"
+                                            id="input-pass2"
+                                            value={pass2}
+                                            onChange={(e) => setPass2(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="col-12">
+                                    <button
+                                        type="button"
+                                        onClick={handleRegistro}
+                                        className="btn btn-primary fs-5 w-100 mt-2"
+                                        disabled={cargandoRegistro}
+                                    >
+                                        {cargandoRegistro ? "Enviando..." : "Confirmar"}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
