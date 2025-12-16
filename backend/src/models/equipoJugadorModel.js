@@ -1,16 +1,44 @@
 import connection from "../../db.js";
 import { formatToday } from "../helpers/dateHelper.js";
 
+// Miembros activos (de un equipo)
 export const listActivosByEquipo = async (id_equipo) => {
   const q = `
-    SELECT ej.id, ej.id_equipo, ej.id_jugador, ej.fecha_alta, ej.fecha_baja,
-           j.nickname, j.id_rango, j.id_rol
+    SELECT
+      ej.id,
+      ej.id_equipo,
+      ej.id_jugador,
+      ej.fecha_alta,
+      ej.fecha_baja,
+      j.nickname,
+      j.id_rango,
+      j.id_rol
     FROM equipo_jugador ej
     JOIN jugador j ON j.id = ej.id_jugador
     WHERE ej.id_equipo = ? AND ej.fecha_baja IS NULL
     ORDER BY ej.fecha_alta ASC
   `;
   const [rows] = await connection.query(q, [id_equipo]);
+  return rows;
+};
+
+export const listActivosAll = async () => {
+  const q = `
+    SELECT
+      ej.id,
+      ej.id_equipo,
+      ej.id_jugador,
+      ej.fecha_alta,
+      ej.fecha_baja,
+      j.nickname,
+      j.id_rango,
+      j.id_rol
+    FROM equipo_jugador ej
+    JOIN jugador j ON j.id = ej.id_jugador
+    WHERE ej.fecha_baja IS NULL
+    ORDER BY ej.id_equipo ASC, ej.fecha_alta ASC
+  `;
+  const [rows] = await connection.query(q);
   return rows;
 };
 
@@ -25,6 +53,7 @@ export const existsActivo = async ({ id_equipo, id_jugador }) => {
   return rows.length > 0;
 };
 
+// Alta
 export const add = async ({ id_equipo, id_jugador }) => {
   const now = formatToday();
   const q = `
@@ -35,6 +64,7 @@ export const add = async ({ id_equipo, id_jugador }) => {
   return result.insertId;
 };
 
+// Baja lógica
 export const baja = async ({ id_equipo, id_jugador }) => {
   const now = formatToday();
   const q = `
@@ -44,4 +74,15 @@ export const baja = async ({ id_equipo, id_jugador }) => {
   `;
   const [result] = await connection.query(q, [now, id_equipo, id_jugador]);
   return result.affectedRows;
+};
+export const getEquipoActivoIdByJugador = async (id_jugador) => {
+  const q = `
+    SELECT id_equipo
+    FROM equipo_jugador
+    WHERE id_jugador = ? AND fecha_baja IS NULL
+    ORDER BY fecha_alta DESC
+    LIMIT 1
+  `;
+  const [rows] = await connection.query(q, [id_jugador]);
+  return rows.length ? rows[0].id_equipo : null;
 };

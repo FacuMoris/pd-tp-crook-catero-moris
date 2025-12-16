@@ -9,4 +9,7 @@ router.post("/me/jugador", requireAuth, jugadorController.createMe);
 router.put("/me/jugador", requireAuth, jugadorController.updateMe);
 router.delete("/me/jugador", requireAuth, jugadorController.deleteMe);
 
+router.get("/rangos", requireAuth, jugadorController.getRangos);
+router.get("/roles", requireAuth, jugadorController.getRoles);
+
 export default router;

@@ -102,3 +102,51 @@ export const removeById = async (id) => {
   const [result] = await connection.query(q, [id]);
   return result.affectedRows;
 };
+
+export const getAuthById = async (id) => {
+  const q = `
+    SELECT id, nombre, apellido, email, telefono, pass, is_admin
+    FROM usuario
+    WHERE id = ?
+  `;
+  const [rows] = await connection.query(q, [id]);
+  return rows.length ? rows[0] : null;
+};
+
+export const emailExists = async (email, excludeId) => {
+  const q = `SELECT 1 FROM usuario WHERE email = ? AND id <> ?`;
+  const [[row]] = await connection.query(q, [email, excludeId]);
+  return !!row;
+};
+
+export const updateProfileById = async (
+  id,
+  { nombre, apellido, email, telefono }
+) => {
+  const q = `
+    UPDATE usuario
+    SET nombre = ?, apellido = ?, email = ?, telefono = ?, fecha_modificacion = ?
+    WHERE id = ?
+  `;
+  const [result] = await connection.query(q, [
+    nombre,
+    apellido,
+    email,
+    telefono ?? null,
+    formatToday(),
+    id,
+  ]);
+  return result.affectedRows > 0;
+};
+
+export const updatePasswordById = async (id, passNueva) => {
+  const pass_crypt = await bcrypt.hash(passNueva, 10);
+
+  const q = `
+    UPDATE usuario
+    SET pass = ?, fecha_modificacion = ?
+    WHERE id = ?
+  `;
+  const [result] = await connection.query(q, [pass_crypt, formatToday(), id]);
+  return result.affectedRows > 0;
+};

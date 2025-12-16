@@ -11,6 +11,15 @@ router.get("/me/equipos/:id", requireAuth, equipoController.getById);
 router.post("/me/equipos", requireAuth, equipoController.createMine);
 router.put("/me/equipos/:id", requireAuth, equipoController.updateMine);
 router.delete("/me/equipos/:id", requireAuth, equipoController.deleteMine);
+router.post("/equipos/:id/unirse", requireAuth, equipoController.unirse);
+router.get("/me/equipo-actual", requireAuth, equipoController.getEquipoActual);
+router.post("/equipos/:id/salir", requireAuth, equipoController.salir);
+router.get("/equipos/:id/mensajes", requireAuth, equipoController.listMensajes);
+router.post(
+  "/equipos/:id/mensajes",
+  requireAuth,
+  equipoController.enviarMensaje
+);
 
 // miembros
 router.get(

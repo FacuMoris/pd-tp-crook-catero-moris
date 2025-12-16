@@ -18,23 +18,27 @@ import rangoRoutes from "./src/routes/rangoRoutes.js";
 dotenv.config();
 
 const { urlencoded, json } = bodyParser;
-
 const app = express();
-
 const port = process.env.PORT || 8888;
 
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+
 app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    process.env.CORS_ORIGIN || "http://localhost:5173"
-  );
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  console.log(`[API] ${req.method} ${req.originalUrl}`);
   next();
 });
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
+
+app.get("/ping", (req, res) => res.json({ success: true, message: "pong" }));
+
 app.use(usuarioRoutes);
 app.use(adminRolRoutes);
 app.use(adminRangoRoutes);

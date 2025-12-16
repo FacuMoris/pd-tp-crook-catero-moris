@@ -3,9 +3,13 @@ import { formatToday } from "../helpers/dateHelper.js";
 
 export const getByUsuarioId = async (id_usuario) => {
   const q = `
-    SELECT id, id_usuario, nickname, id_rango, id_rol, edad, bio, fecha_creacion, fecha_modificacion
-    FROM jugador
-    WHERE id_usuario = ?
+    SELECT j.id, j.id_usuario, j.nickname, j.id_rango, j.id_rol, j.edad, j.bio, j.fecha_creacion, j.fecha_modificacion,
+           r.nombre AS rango,
+           ro.nombre AS rol
+    FROM jugador j
+    JOIN rango r ON r.id = j.id_rango
+    JOIN rol ro ON ro.id = j.id_rol
+    WHERE j.id_usuario = ?
   `;
   const [rows] = await connection.query(q, [id_usuario]);
   return rows.length ? rows[0] : null;
@@ -120,4 +124,16 @@ export const removeById = async (id) => {
   const q = `DELETE FROM jugador WHERE id = ?`;
   const [result] = await connection.query(q, [id]);
   return result.affectedRows;
+};
+
+export const getRangos = async () => {
+  const q = `SELECT id, nombre FROM rango ORDER BY nombre`;
+  const [rows] = await connection.query(q);
+  return rows;
+};
+
+export const getRoles = async () => {
+  const q = `SELECT id, nombre FROM rol ORDER BY nombre`;
+  const [rows] = await connection.query(q);
+  return rows;
 };

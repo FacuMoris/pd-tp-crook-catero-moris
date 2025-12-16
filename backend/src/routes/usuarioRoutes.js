@@ -11,4 +11,7 @@ router.get("/welcome", requireAuth, usuarioController.welcome);
 router.get("/refresh-token", usuarioController.refreshToken);
 router.post("/logout", requireAuth, logout);
 
+router.get("/me", requireAuth, usuarioController.getMe);
+router.put("/me", requireAuth, usuarioController.updateMe);
+
 export default router;

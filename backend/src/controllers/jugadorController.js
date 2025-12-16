@@ -118,3 +118,28 @@ export const deleteMe = async (req, res) => {
     });
   }
 };
+export const getRangos = async (req, res) => {
+  try {
+    const results = await jugadorModel.getRangos();
+    return res.json({ success: true, results });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "Error al intentar recuperar los rangos",
+    });
+  }
+};
+
+export const getRoles = async (req, res) => {
+  try {
+    const results = await jugadorModel.getRoles();
+    return res.json({ success: true, results });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "Error al intentar recuperar los roles",
+    });
+  }
+};

@@ -58,14 +58,9 @@ export const remove = async (id) => {
 
 export const getAll = async () => {
   const q = `
-    SELECT e.id, e.nombre, e.id_lider, e.id_estado,
-           e.fecha_estado, e.fecha_creacion, e.fecha_modificacion,
-           j.nickname AS lider_nickname,
-           ee.nombre AS estado_nombre
-    FROM equipo e
-    JOIN jugador j ON j.id = e.id_lider
-    JOIN estado_equipo ee ON ee.id = e.id_estado
-    ORDER BY e.id DESC
+    SELECT id, nombre, id_lider, id_estado, fecha_estado, fecha_creacion, fecha_modificacion
+    FROM equipo
+    ORDER BY id DESC
   `;
   const [rows] = await connection.query(q);
   return rows;
@@ -92,5 +87,28 @@ export const getByIdAndUsuario = async (id_equipo, id_usuario) => {
       AND j.id_usuario = ?
   `;
   const [rows] = await connection.query(q, [id_equipo, id_usuario]);
+  return rows.length ? rows[0] : null;
+};
+export const getEquipoActualByJugador = async (id_jugador) => {
+  const q = `
+    SELECT
+      e.id,
+      e.nombre,
+      e.num_jugadores,
+      e.id_lider,
+      j.nickname AS lider_nickname,
+      e.id_estado,
+      ee.nombre AS estado_nombre,
+      e.fecha_creacion,
+      e.fecha_modificacion
+    FROM equipo_jugador ej
+    JOIN equipo e ON e.id = ej.id_equipo
+    JOIN jugador j ON j.id = e.id_lider
+    JOIN estado_equipo ee ON ee.id = e.id_estado
+    WHERE ej.id_jugador = ? AND ej.fecha_baja IS NULL
+    ORDER BY ej.fecha_alta DESC
+    LIMIT 1
+  `;
+  const [rows] = await connection.query(q, [id_jugador]);
   return rows.length ? rows[0] : null;
 };
