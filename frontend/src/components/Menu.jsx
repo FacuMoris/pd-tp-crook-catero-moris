@@ -61,7 +61,7 @@ export const Menu = () => {
                                             Perfil
                                         </a>
                                         <ul className="dropdown-menu w-25 mx-auto text-center">
-                                            <li><Link className="dropdown-item disabled" to='/perfil'>Ver perfil</Link>
+                                            <li><Link className="dropdown-item" to='/perfil'>Ver perfil</Link>
                                             </li>
                                             <li><Link className="dropdown-item disabled" to='/historial'>Historial</Link></li>
                                         </ul>

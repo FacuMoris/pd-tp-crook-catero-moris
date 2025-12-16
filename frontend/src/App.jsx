@@ -13,6 +13,7 @@ import { Match } from './pages/Match'
 import { Equipo } from './pages/Equipo'
 import { Blog } from './pages/Blog'
 import { Historial } from './pages/Historial'
+import { EquipoActual } from "./pages/EquipoActual";
 
 // Componentes
 import { Menu } from './components/Menu'
@@ -45,6 +46,7 @@ export const App = () => {
               <Route path='/forma/equipo' element={<ProtectedRoute><Equipo /></ProtectedRoute>} />
               <Route path='/blog' element={<ProtectedRoute><Blog /></ProtectedRoute>} />
               <Route path='/historial' element={<ProtectedRoute><Historial /></ProtectedRoute>} />
+              <Route path="/equipo-actual" element={<ProtectedRoute><EquipoActual /></ProtectedRoute>} />
             </Routes>
           </main>
 

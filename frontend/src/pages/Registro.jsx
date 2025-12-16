@@ -163,7 +163,7 @@ export const Registro = () => {
                                 <div className="col-12 col-lg-6">
                                     <div className="mb-3">
                                         <label htmlFor="input-telefono" className="form-label">
-                                            Teléfono (opcional)
+                                            Teléfono
                                         </label>
                                         <input
                                             type="text"

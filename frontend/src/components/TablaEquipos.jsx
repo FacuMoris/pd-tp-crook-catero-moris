@@ -1,92 +1,72 @@
-import './style/TablaEquipos.css'
-import { Card } from './Card';
-import { useNavigate } from 'react-router-dom'
-import { SolicitoUnirme } from './SolicitoUnirme';
-import { useState } from 'react';
-
-export const TablaEquipos = (props) => {
-    
-    const equipos = props.equipos;
-    var hayEquipos = false;
-    const navigate = useNavigate();
-    const [mostrarSolicitud, setMostrarSolicitud] = useState(false);
-    const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-
-    const handleMatchEquipo = (usuario) => {
-        setUsuarioSeleccionado(usuario);
-        setMostrarSolicitud(true);
-    };
-
-    const miUser = {
-        alias: 'facumoris'
-    };
-
-    
+export const TablaEquipos = ({ equipos = [], equipoActualId, onUnirse, onSalir, uniendoId, saliendoId }) => {
     return (
-        <div className="row justify-content-center mx-1 px-1 pt-3">
-               {mostrarSolicitud && (
-                <SolicitoUnirme usuario={usuarioSeleccionado} />
-            )}
-            <div className="col-8">
-
-            <table className="table table-striped text-center">
+        <div className="table-responsive">
+            <table className="table table-striped align-middle">
                 <thead>
                     <tr>
-                        <th scope="col">Equipo</th>
-                        <th scope="col">Miembros</th>
-                        <th scope="col">Rol faltante</th>
-                        <th scope="col">Acción</th>
+                        <th>EQUIPO</th>
+                        <th>MIEMBROS</th>
+                        <th className="text-end">ACCIÓN</th>
                     </tr>
                 </thead>
-                <tbody className="">
-                    {equipos.map(equipo => {
-                        if (equipo.busca_player) {
-                            hayEquipos = true;
-                            return (
-                                <tr key={equipo.id} className="tr-tabla-equipos align-middle">
-                                    <td>{equipo.nombre}</td>
-                                    <td className="align-bottom">
-                                        <div className="row text-center justify-content-center">
-                                            {equipo.jugadores.map(jugador => (
-                                                <div key={jugador.id} className="col-1 mini-player mx-5 px-0">
-                                                    <img src='/img/logo/user.png' alt="foto-perfil" className='user-png' />
-                                                    <span>{jugador.alias}</span>
-                                                </div>
+
+                <tbody>
+                    {equipos.map((e) => {
+                        const esMiEquipo = equipoActualId && Number(e.id) === Number(equipoActualId);
+
+                        return (
+                            <tr key={e.id}>
+                                <td>
+                                    <div className="fw-semibold">{e.nombre}</div>
+                                    {(e.lider_nickname || e.estado_nombre) && (
+                                        <div className="small text-muted">
+                                            {e.lider_nickname ? <>Líder: {e.lider_nickname}</> : null}
+                                            {e.lider_nickname && e.estado_nombre ? " · " : null}
+                                            {e.estado_nombre ? <>Estado: {e.estado_nombre}</> : null}
+                                        </div>
+                                    )}
+                                </td>
+
+                                <td>
+                                    {Array.isArray(e.miembros) && e.miembros.length > 0 ? (
+                                        <div className="d-flex flex-wrap gap-2">
+                                            {e.miembros.map((m) => (
+                                                <span key={m.id} className="badge text-bg-secondary">
+                                                    {m.nickname}
+                                                </span>
                                             ))}
                                         </div>
-                                    </td>
-                                    <td>Duelista</td>
-                                    <td><button type='button' className='btn btn-primary' onClick={() => handleMatchEquipo(miUser)}>Unirme</button></td>
-                                </tr>
-                            );
-                        }
-                    })
-                }
+                                    ) : (
+                                        <span className="text-muted">Sin miembros</span>
+                                    )}
+                                </td>
 
+                                <td className="text-end">
+                                    {esMiEquipo ? (
+                                        <button
+                                            className="btn btn-danger"
+                                            type="button"
+                                            onClick={() => onSalir?.(e.id)}
+                                            disabled={saliendoId === e.id}
+                                        >
+                                            {saliendoId === e.id ? "Saliendo..." : "Salir"}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="btn btn-primary"
+                                            type="button"
+                                            onClick={() => onUnirse?.(e.id)}
+                                            disabled={uniendoId === e.id}
+                                        >
+                                            {uniendoId === e.id ? "Uniéndote..." : "Unirme"}
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
-            </div>
-            {!hayEquipos && (
-                <>
-                    <div className="row text-center justify-content-center">
-                      <Card titulo='No hay equipos disponibles en este momento' descripcion='Podes intentarlo más tarde o formar tu propio equipo.' col='6'
-                      img='/img/logo/404.png'/>
-                    </div>
-                    <div className="row justify-content-center text-center">
-                        <div className="col-2">
-
-                            <button type='button' onClick={() => {navigate('/formar/equipo')}} className='btn btn-primary px-4 py-2'>Formar Equipo</button>
-                        </div>
-                        <div className="col-2">
-
-                            <button type='button' onClick={() => {navigate('/home')}} className='btn btn-primary px-5 py-2'>Volver</button>
-                        </div>
-                    </div>
-                </>
-            )}
         </div>
-
-    )
-
-
-}
+    );
+};
