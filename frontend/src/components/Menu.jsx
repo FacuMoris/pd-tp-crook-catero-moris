@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import './style/Menu.css';
 
 export const Menu = () => {
-    const { logueado, logout } = useAuth()
+    const { logueado, logout, token, user } = useAuth()
 
     const navigate = useNavigate()
 
@@ -12,7 +12,22 @@ export const Menu = () => {
         logout()
         navigate('/')
     }
+    const decodeJwtPayload = (t) => {
+        try {
+            const payload = t.split(".")[1];
+            const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+            return JSON.parse(json);
+        } catch {
+            return null;
+        }
+    };
 
+    const isAdmin = (() => {
+        if (user && (user.is_admin === 1 || user.is_admin === true)) return true;
+        const p = token ? decodeJwtPayload(token) : null;
+        const flag = p?.is_admin ?? p?.IS_ADMIN;
+        return flag === 1 || flag === "1" || flag === true;
+    })();
     return (
         <div className="row mb-4 mt-2" id='row-nav'>
             <nav className='navbar navbar-expand-lg bg-body-secondary fs-6' id='nav-menu'>
@@ -70,7 +85,15 @@ export const Menu = () => {
                                         <a className="nav-link dropdown-togle d-flex justify-content-center" href="#" role='button' data-bs-toggle='dropdown' aria-expanded='true'>
                                             Opciones
                                         </a>
-
+                                        {isAdmin && (
+                                            <ul>
+                                                <li>
+                                                    <Link className="dropdown-item text-danger text-bold" to="/admin/usuarios">
+                                                        ADMIN
+                                                    </Link>
+                                                </li>
+                                            </ul>
+                                        )}
                                         <ul className="dropdown-menu w-25 mx-auto text-center ">
                                             <li><Link className="dropdown-item disabled" to='/editperfil'>Editar perfil</Link>
                                             </li>
