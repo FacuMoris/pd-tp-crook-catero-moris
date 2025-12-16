@@ -89,12 +89,18 @@ export const getByIdAndUsuario = async (id_equipo, id_usuario) => {
   const [rows] = await connection.query(q, [id_equipo, id_usuario]);
   return rows.length ? rows[0] : null;
 };
+
+// ✅ ESTA ES LA FUNCIÓN QUE TE FALTA Y POR ESO ROMPE /me/equipo-actual
 export const getEquipoActualByJugador = async (id_jugador) => {
   const q = `
     SELECT
       e.id,
       e.nombre,
-      e.num_jugadores,
+      (
+        SELECT COUNT(*)
+        FROM equipo_jugador ej2
+        WHERE ej2.id_equipo = e.id AND ej2.fecha_baja IS NULL
+      ) AS num_jugadores,
       e.id_lider,
       j.nickname AS lider_nickname,
       e.id_estado,
@@ -111,4 +117,18 @@ export const getEquipoActualByJugador = async (id_jugador) => {
   `;
   const [rows] = await connection.query(q, [id_jugador]);
   return rows.length ? rows[0] : null;
+};
+
+// líder sale => estado 3 (cerrado)
+export const cerrarEquipo = async (id_equipo, conn = connection) => {
+  const now = formatToday();
+  const q = `
+    UPDATE equipo
+    SET id_estado = 3,
+        fecha_estado = ?,
+        fecha_modificacion = ?
+    WHERE id = ?
+  `;
+  const [result] = await conn.query(q, [now, now, id_equipo]);
+  return result.affectedRows;
 };

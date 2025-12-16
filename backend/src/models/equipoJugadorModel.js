@@ -1,7 +1,6 @@
 import connection from "../../db.js";
 import { formatToday } from "../helpers/dateHelper.js";
 
-// Miembros activos (de un equipo)
 export const listActivosByEquipo = async (id_equipo) => {
   const q = `
     SELECT
@@ -53,7 +52,16 @@ export const existsActivo = async ({ id_equipo, id_jugador }) => {
   return rows.length > 0;
 };
 
-// Alta
+export const countActivosByEquipo = async (id_equipo) => {
+  const q = `
+    SELECT COUNT(*) AS cant
+    FROM equipo_jugador
+    WHERE id_equipo = ? AND fecha_baja IS NULL
+  `;
+  const [rows] = await connection.query(q, [id_equipo]);
+  return Number(rows?.[0]?.cant ?? 0);
+};
+
 export const add = async ({ id_equipo, id_jugador }) => {
   const now = formatToday();
   const q = `
@@ -64,7 +72,6 @@ export const add = async ({ id_equipo, id_jugador }) => {
   return result.insertId;
 };
 
-// Baja lógica
 export const baja = async ({ id_equipo, id_jugador }) => {
   const now = formatToday();
   const q = `
@@ -75,6 +82,18 @@ export const baja = async ({ id_equipo, id_jugador }) => {
   const [result] = await connection.query(q, [now, id_equipo, id_jugador]);
   return result.affectedRows;
 };
+
+export const bajaAllActivosByEquipo = async (id_equipo, conn = connection) => {
+  const now = formatToday();
+  const q = `
+    UPDATE equipo_jugador
+    SET fecha_baja = ?
+    WHERE id_equipo = ? AND fecha_baja IS NULL
+  `;
+  const [result] = await conn.query(q, [now, id_equipo]);
+  return result.affectedRows;
+};
+
 export const getEquipoActivoIdByJugador = async (id_jugador) => {
   const q = `
     SELECT id_equipo

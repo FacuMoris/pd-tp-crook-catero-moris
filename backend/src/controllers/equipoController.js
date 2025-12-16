@@ -2,6 +2,9 @@ import * as jugadorModel from "../models/jugadorModel.js";
 import * as equipoModel from "../models/equipoModel.js";
 import * as equipoJugadorModel from "../models/equipoJugadorModel.js";
 import * as equipoMensajeModel from "../models/equipoMensajeModel.js";
+import * as estadoEquipoModel from "../models/estadoEquipoModel.js";
+
+const MAX_MIEMBROS = 5;
 
 const getMiJugadorId = async (req) => {
   const jugador = await jugadorModel.getByUsuarioId(req.user.ID);
@@ -57,37 +60,71 @@ export const listMine = async (req, res) => {
 };
 
 export const createMine = async (req, res) => {
-  const { nombre, id_estado } = req.body;
-  if (!nombre || !id_estado) {
+  const { nombre } = req.body;
+
+  if (!String(nombre || "").trim()) {
     return res
       .status(400)
-      .json({ success: false, message: "Faltan datos obligatorios" });
+      .json({ success: false, message: "El nombre del equipo es obligatorio" });
   }
 
   try {
     const miJugadorId = await getMiJugadorId(req);
+
     if (!miJugadorId) {
+      // ✅ importante: devolvemos 409 para que el front muestre el botón a EditPerfil
       return res.status(409).json({
         success: false,
         message: "El usuario no tiene perfil jugador",
+        code: "NO_JUGADOR",
       });
     }
 
+    // ✅ estado fijo siempre 1
     const id = await equipoModel.create({
-      nombre,
+      nombre: String(nombre).trim(),
       id_lider: miJugadorId,
-      id_estado,
+      id_estado: 1,
     });
+
+    // líder como miembro activo
+    const yaMiembro = await equipoJugadorModel.existsActivo({
+      id_equipo: Number(id),
+      id_jugador: Number(miJugadorId),
+    });
+
+    if (!yaMiembro) {
+      await equipoJugadorModel.add({
+        id_equipo: Number(id),
+        id_jugador: Number(miJugadorId),
+      });
+    }
+
     return res.json({
       success: true,
       message: "Equipo creado correctamente",
       id,
     });
-  } catch (e) {
-    console.log(e);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error al crear equipo" });
+  } catch (error) {
+    console.log("CREATE MINE EQUIPO ERROR =>", {
+      code: error?.code,
+      errno: error?.errno,
+      sqlMessage: error?.sqlMessage,
+      message: error?.message,
+    });
+
+    if (error?.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        success: false,
+        message: "Ya existe un equipo con ese nombre",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Error al crear equipo",
+      detail: { code: error?.code, sqlMessage: error?.sqlMessage },
+    });
   }
 };
 
@@ -297,6 +334,7 @@ export const listAll = async (req, res) => {
     const result = equipos.map((e) => ({
       ...e,
       miembros: map.get(e.id) || [],
+      num_jugadores: (map.get(e.id) || []).length,
     }));
 
     return res.json({
@@ -332,6 +370,25 @@ export const unirse = async (req, res) => {
         .json({ success: false, message: "Equipo no encontrado" });
     }
 
+    // ✅ reglas por estado
+    const st = Number(equipo.id_estado);
+    if (st === 3)
+      return res
+        .status(409)
+        .json({ success: false, message: "El equipo está cerrado" });
+    if (st === 4)
+      return res
+        .status(409)
+        .json({ success: false, message: "El equipo está suspendido" });
+    if (st === 2)
+      return res
+        .status(409)
+        .json({ success: false, message: "El equipo ya está completo" });
+    if (st !== 1)
+      return res
+        .status(409)
+        .json({ success: false, message: "No se puede unir a este equipo" });
+
     const miJugadorId = await getMiJugadorId(req);
     if (!miJugadorId) {
       return res.status(409).json({
@@ -340,36 +397,53 @@ export const unirse = async (req, res) => {
       });
     }
 
-    const ya = await equipoJugadorModel.existsActivo({
-      id_equipo,
-      id_jugador: miJugadorId,
-    });
-
-    if (ya) {
-      return res
-        .status(409)
-        .json({ success: false, message: "Ya sos miembro de este equipo" });
-    }
+    // ✅ no puede estar en otro equipo activo
     const equipoActivoId = await equipoJugadorModel.getEquipoActivoIdByJugador(
       miJugadorId
     );
-    if (equipoActivoId && equipoActivoId !== id_equipo) {
+    if (equipoActivoId && Number(equipoActivoId) !== id_equipo) {
       return res.status(409).json({
         success: false,
         message:
           "Ya estás en un equipo. Salí del equipo actual para unirte a otro.",
       });
     }
+
+    // ✅ si ya está adentro
+    const ya = await equipoJugadorModel.existsActivo({
+      id_equipo,
+      id_jugador: miJugadorId,
+    });
+    if (ya) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Ya sos miembro de este equipo" });
+    }
+
+    // ✅ cupo por COUNT
+    const cantAntes = await equipoJugadorModel.countActivosByEquipo(id_equipo);
+    if (cantAntes >= MAX_MIEMBROS) {
+      // por consistencia: lo marcamos completo
+      await equipoModel.updateEstado(id_equipo, 2);
+      return res
+        .status(409)
+        .json({ success: false, message: "El equipo ya está completo" });
+    }
+
     const id = await equipoJugadorModel.add({
       id_equipo,
       id_jugador: miJugadorId,
     });
 
-    return res.json({
-      success: true,
-      message: "Te uniste al equipo",
-      id,
-    });
+    // ✅ si con este ingreso se completó, pasa a estado 2
+    const cantDespues = await equipoJugadorModel.countActivosByEquipo(
+      id_equipo
+    );
+    if (cantDespues >= MAX_MIEMBROS) {
+      await equipoModel.updateEstado(id_equipo, 2);
+    }
+
+    return res.json({ success: true, message: "Te uniste al equipo", id });
   } catch (error) {
     console.log("UNIRSE ERROR =>", {
       code: error?.code,
@@ -383,6 +457,7 @@ export const unirse = async (req, res) => {
       .json({ success: false, message: "Error al unirse al equipo" });
   }
 };
+
 export const getEquipoActual = async (req, res) => {
   try {
     const miJugadorId = await getMiJugadorId(req);
@@ -412,16 +487,21 @@ export const getEquipoActual = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("GET EQUIPO ACTUAL ERROR =>", error);
+    console.error("GET EQUIPO ACTUAL ERROR =>");
+    console.error(error);
+    console.error(error.message);
+    console.error(error.stack);
+
     return res
       .status(500)
       .json({ success: false, message: "Error al obtener equipo actual" });
   }
 };
-export const salir = async (req, res) => {
-  try {
-    const id_equipo = Number(req.params.id);
 
+export const salir = async (req, res) => {
+  const id_equipo = Number(req.params.id);
+
+  try {
     const miJugadorId = await getMiJugadorId(req);
     if (!miJugadorId) {
       return res.status(409).json({
@@ -430,21 +510,78 @@ export const salir = async (req, res) => {
       });
     }
 
-    const affected = await equipoJugadorModel.baja({
-      id_equipo,
-      id_jugador: miJugadorId,
-    });
-
-    if (!affected) {
-      return res.status(409).json({
-        success: false,
-        message: "No estabas en ese equipo (o ya habías salido).",
-      });
+    const equipo = await equipoModel.getById(id_equipo);
+    if (!equipo) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Equipo no encontrado" });
     }
 
-    return res.json({ success: true, message: "Saliste del equipo" });
+    const esLider = Number(equipo.id_lider) === Number(miJugadorId);
+
+    // Si NO es líder: baja normal
+    if (!esLider) {
+      const affected = await equipoJugadorModel.baja({
+        id_equipo,
+        id_jugador: miJugadorId,
+      });
+
+      if (!affected) {
+        return res.status(409).json({
+          success: false,
+          message: "No estabas en ese equipo (o ya habías salido).",
+        });
+      }
+      const MAX_MIEMBROS = 5;
+      const cant = await equipoJugadorModel.countActivosByEquipo(id_equipo);
+
+      if (Number(equipo.id_estado) === 2 && cant < MAX_MIEMBROS) {
+        await equipoModel.updateEstado(id_equipo, 1);
+      }
+
+      return res.json({ success: true, message: "Saliste del equipo" });
+    }
+
+    // Si es líder: cerrar equipo kick a todos
+    const conn = connection.getConnection
+      ? await connection.getConnection()
+      : connection;
+    const release = conn.release ? () => conn.release() : () => {};
+
+    try {
+      if (conn.beginTransaction) await conn.beginTransaction();
+
+      await equipoModel.cerrarEquipo(id_equipo, conn);
+      await equipoJugadorModel.bajaAllActivosByEquipo(id_equipo, conn);
+
+      if (conn.commit) await conn.commit();
+
+      return res.json({
+        success: true,
+        message: "Cerraste el equipo y se expulsaron los miembros",
+      });
+    } catch (err) {
+      if (conn.rollback) await conn.rollback();
+      console.log("SALIR LIDER ERROR =>", {
+        code: err?.code,
+        errno: err?.errno,
+        sqlMessage: err?.sqlMessage,
+        message: err?.message,
+      });
+      return res
+        .status(500)
+        .json({ success: false, message: "Error al cerrar el equipo" });
+    } finally {
+      release();
+    }
   } catch (error) {
-    console.log("SALIR ERROR =>", error);
+    console.log("SALIR ERROR =>", {
+      code: error?.code,
+      errno: error?.errno,
+      sqlMessage: error?.sqlMessage,
+      message: error?.message,
+    });
+
     return res
       .status(500)
       .json({ success: false, message: "Error al salir del equipo" });
